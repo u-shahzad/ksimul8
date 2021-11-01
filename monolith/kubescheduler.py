@@ -7,9 +7,9 @@ class Kubescheduler(Predicates, Priorites):
         self.name = name
     
     def scheduling_cycle(self, cluster, pod):
-        # apply predicates on node
-        return self.podFitHost(cluster, pod)
+        
+        # Apply Predicates
 
-
-        # apply priorites on node
-
+        # Apply Priorities
+        
+        return ""
