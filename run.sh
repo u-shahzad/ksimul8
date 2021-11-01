@@ -1,4 +1,3 @@
 #!/bin/bash
 
-python app.py
-
+python monolith/app.py

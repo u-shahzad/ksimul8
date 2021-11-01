@@ -21,7 +21,7 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
     p1 = Pod("Pod1", 1, "Kubescheduler", "n1", "app", "nginx", 2, 1)
     p2 = Pod("Pod2", 2, "Kubescheduler", "n2", "app2", "redis", 1, 0.5)
     p3 = Pod("Pod3", 3, "Kubescheduler", "n2", "app3", "mongoDB", 4.2, 0.7)
-    p4 = Pod("Pod4", 4, "Kubescheduler", "n1", "app4", "celery", 4.0, 0.7)
+    p4 = Pod("Pod4", 4, "myscheduler", "n1", "app4", "celery", 4.0, 0.7)
 
     pod_queue = queue.Queue()
     pod_queue.put(p1)
