@@ -1,6 +1,6 @@
 # kubernetes-scheduler-simpy
-This is the source code of Kubernetes Scheduler Simulation Application in simpy,
-a thesis project of *University of Pisa* and *CNR-ISTI*,
+This is the source code of the Kubernetes Scheduler Simulation Application, created using simpy.
+A thesis project of *University of Pisa* and *CNR-ISTI*.
 
 #### Supervisor
 
@@ -9,7 +9,7 @@ a thesis project of *University of Pisa* and *CNR-ISTI*,
 |Dr. Patrizio Dazzi, Ph.D.   |patrizio.dazzi@isti.cnr.it   |
 |Dr. Emanuele Carlini, Ph.D. |emanuele.carlini@isti.cnr.it |
 
-#### Bio
+#### Student
 
 |Name and Surname  | Email                         |
 |------------------|-------------------------------|
