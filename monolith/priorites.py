@@ -5,7 +5,7 @@ class Priorites:
     def imageLocalityPriority(self, cluster, pod):
         nodes = cluster.getList()
         for item in nodes:
-            for pods in item:
+            for pods in item.pod_list:
                 if pods.containerImage == pod.containerImage:
                     return True
         return False

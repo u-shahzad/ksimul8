@@ -1,8 +1,8 @@
 import simpy
 
 class Cluster:
-    def __init__(self, env, num_of_nodes):
-        self.num_of_nodes = simpy.Resource(env, capacity = num_of_nodes)
+    def __init__(self, env):
+        self.master_node = simpy.Resource(env, capacity = 1)
         self.node_list = [] # list of nodes in cluster
 
     def append(self, elem):
