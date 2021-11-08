@@ -2,6 +2,8 @@
 This is the source code of the Kubernetes Scheduler Simulation Application, created using simpy.
 A thesis project of *University of Pisa* and *CNR-ISTI*.
 
+## Team
+
 #### Supervisor
 
 |Name and Surname            | Email                       |
