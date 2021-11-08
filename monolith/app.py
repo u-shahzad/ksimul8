@@ -36,7 +36,7 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
         if (pod_queue.empty() == False):
             # Tell the simulation enviroment to run the kubescheduler activity generator
-            env.process(kubesched_generator(env, ideal_service_time, cluster, pod_queue.get()))
+            env.process(kubescheduler_generator(env, ideal_service_time, cluster, pod_queue.get()))
 
         # Calculate the time until the next pod arrives
         t = random.expovariate(1.0 / inter_arrival_time)
@@ -46,27 +46,27 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
         yield env.timeout(t)
 
 
-def kubesched_generator(env, ideal_service_time, cluster, pod):
+def kubescheduler_generator(env, ideal_service_time, cluster, pod):
     pod_arrival_time = env.now
     print("* Pod ", pod.id, " entered queue at ", pod_arrival_time, "\n", sep="")
-
-    kubescheduler = Kubescheduler("Kubescheduler")
-    print("--> Pod Fits Host... ", kubescheduler.podFitsResources(cluster, pod))
-
-    print("--> Image Locality.. ", kubescheduler.imageLocalityPriority(cluster, pod), "\n")
 
     with cluster.master_node.request() as req:
         # The function freezes in place until the request can be met
         # (ie there is a node available for the request to be met).
+
         yield req
         # Once the function unfreezes, it'll resume from here, so when we get
         # to this point we know a node is now available. So we can record the
         # current simulation time, and therefore work out how long 
         # the pod was queuing.
+
+        kubescheduler = Kubescheduler("Kubescheduler")
+
+        print("--> Pod " + str(pod.id) + " Fits Host... ", kubescheduler.podFitsResources(cluster, pod))
+        print("--> Pod " + str(pod.id) + " Image Locality... ", kubescheduler.imageLocalityPriority(cluster, pod), "\n")
+
         pod_assigned_node_time = env.now
         print("* Pod ", pod.id, " assigned a node at ", pod_assigned_node_time, "\n", sep="")
-        time_in_queue = (pod_assigned_node_time - pod_arrival_time)
-        print("* Pod ", pod.id, " queued for ", time_in_queue, " minutes.", "\n", sep="")
 
         scheduling_time = random.expovariate(1.0 / ideal_service_time)
 

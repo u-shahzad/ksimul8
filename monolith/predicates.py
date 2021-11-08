@@ -4,8 +4,8 @@ class Predicates:
 
     def podFitsResources(self, cluster, pod):
         nodes = cluster.getList()
-        for item in nodes:
-            if item.memory >= pod.memory and item.cpu >= pod.cpu:
+        for node in nodes:
+            if node.memory >= pod.memory and node.cpu >= pod.cpu:
                 return True
             else:
                 return False
