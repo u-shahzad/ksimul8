@@ -1,7 +1,11 @@
+import itertools
+
+
 class Pod:
-    def __init__(self, name, id, schedulerName, containerName, containerImage, memory, cpu):
+    id_iter = itertools.count()
+    def __init__(self, name, schedulerName, containerName, containerImage, memory, cpu):
         self.name = name
-        self.id = id
+        self.id = next(Pod.id_iter)
         self.schedulerName = schedulerName
         self.nodeName = ""
         self.containerName = containerName

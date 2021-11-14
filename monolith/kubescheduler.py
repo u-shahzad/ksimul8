@@ -27,4 +27,4 @@ class Kubescheduler(Predicates, Priorites):
             if self.imageLocalityPriority(node, pod) == True:
                 self.priorites = True
 
-        print('Priorites Status: ' + str(self.priorites))
+        print('Priorites Status: ' + str(self.priorites) + '\n')

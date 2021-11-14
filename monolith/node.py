@@ -1,9 +1,11 @@
-from pod import Pod
+import itertools
+
 
 class Node:
-    def __init__(self, name, id, memory, cpu):
+    id_iter = itertools.count()
+    def __init__(self, name, memory, cpu):
         self.name = name
-        self.id = id
+        self.id = next(Node.id_iter)
         self.num_of_pods = 0 # initially node contains no pod
         self.memory = memory
         self.cpu = cpu
