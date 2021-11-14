@@ -1,15 +1,14 @@
-# from node import Node
-
 class Pod:
-    def __init__(self, name, id, schedulerName, nodeName, containerName, containerImage, memory, cpu):
+    def __init__(self, name, id, schedulerName, containerName, containerImage, memory, cpu):
         self.name = name
         self.id = id
         self.schedulerName = schedulerName
-        self.nodeName = nodeName
+        self.nodeName = ""
         self.containerName = containerName
         self.containerImage = containerImage
         self.memory = memory
         self.cpu = cpu
+        self.is_bind = False
 
     def serialize(self):
         return {"name": self.name,
@@ -19,7 +18,5 @@ class Pod:
                 "containerName": self.containerName,
                 "containerImage": self.containerImage,
                 "memoryRequirement": self.memory,
-                "cpuRequirement": self.cpu}
-
-    def podName(self):
-        return self.name
+                "cpuRequirement": self.cpu,
+                "is_Bind" : self.is_bind}

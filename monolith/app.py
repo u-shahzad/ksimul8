@@ -1,35 +1,33 @@
-import simpy
-import random
-import json
-import queue
+#!/usr/bin/env python
+
+import simpy, random, json, queue
 from cluster import Cluster
 from pod import Pod
 from node import Node
 from kubescheduler import Kubescheduler
+from podFile import PodFile
 
 
 def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
     cluster = Cluster(env)
 
-    n1 = Node("n1", 1, 0, 4, 2.4)
-    n2 = Node("n2", 2, 0, 2, 1.4)
+    n1 = Node("n1", 1, 4, 2.4)
+    n2 = Node("n2", 2, 8, 1.4)
 
     cluster.append(n1)
     cluster.append(n2)
 
-    p1 = Pod("Pod1", 1, "Kubescheduler", "n1", "app", "nginx", 2, 1)
-    p2 = Pod("Pod2", 2, "Kubescheduler", "n2", "app2", "nginx", 1, 0.5)
-    p3 = Pod("Pod3", 3, "Kubescheduler", "n2", "app3", "redis", 4.2, 0.7)
-    p4 = Pod("Pod4", 4, "myscheduler", "n1", "app4", "celery", 4.0, 0.7)
+    p1 = Pod("Pod1", 1, "Kubescheduler", "app", "nginx", 2, 1)
+    p2 = Pod("Pod2", 2, "Kubescheduler", "app2", "nginx", 1, 0.5)
+    p3 = Pod("Pod3", 3, "Kubescheduler", "app3", "redis", 4.2, 0.7)
+    p4 = Pod("Pod4", 4, "myscheduler", "app4", "celery", 4.0, 0.7)
 
     pod_queue = queue.Queue()
     pod_queue.put(p1)
     pod_queue.put(p2)
     pod_queue.put(p3)
     pod_queue.put(p4)
-
-    n1.pod_list.append(p1)
 
     # Keep doing this indefinitely (whilst the program's running)
     while True:
@@ -62,8 +60,10 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
 
         kubescheduler = Kubescheduler("Kubescheduler")
 
-        print("--> Pod " + str(pod.id) + " Fits Host... ", kubescheduler.podFitsResources(cluster, pod))
-        print("--> Pod " + str(pod.id) + " Image Locality... ", kubescheduler.imageLocalityPriority(cluster, pod), "\n")
+        # Start kubescheduler
+        kubescheduler.scheduling_cycle(cluster, pod)
+
+        print(pod.serialize())
 
         pod_assigned_node_time = env.now
         print("* Pod ", pod.id, " assigned a node at ", pod_assigned_node_time, "\n", sep="")
@@ -90,6 +90,9 @@ def main():
     # Set the simulation to run for 60 time units (representing minutes in our
     # model, so for one hour of simulated time)
     env.run(until=60)
+
+    #pod_file = PodFile()
+    #pod_file.load()
 
 
 if __name__ == "__main__":
