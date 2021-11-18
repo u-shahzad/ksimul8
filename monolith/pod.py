@@ -24,3 +24,6 @@ class Pod:
                 "memoryRequirement": self.memory,
                 "cpuRequirement": self.cpu,
                 "is_Bind" : self.is_bind}
+
+    def getID(self):
+        return self.id

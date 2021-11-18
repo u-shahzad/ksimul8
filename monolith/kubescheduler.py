@@ -19,7 +19,8 @@ class Kubescheduler(Predicates, Priorites):
                 self.predicates = True
                 break
         
-        print('Predicates Status: ' + str(self.predicates))
+        print('---> Pod ' + str(pod.getID()))
+        print('---> Predicates Check: ' + str(self.predicates))
         
         # Priorities
         for node in nodes:
@@ -27,4 +28,4 @@ class Kubescheduler(Predicates, Priorites):
             if self.imageLocalityPriority(node, pod) == True:
                 self.priorites = True
 
-        print('Priorites Status: ' + str(self.priorites) + '\n')
+        print('---> Priorites Check: ' + str(self.priorites) + '\n')

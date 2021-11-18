@@ -12,16 +12,35 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
     cluster = Cluster(env)
 
-    n1 = Node("n1", 4, 2.4)
-    n2 = Node("n2", 8, 1.4)
+    create_nodes(cluster)
 
-    cluster.append(n1)
-    cluster.append(n2)
+    pod_queue = create_pods()
 
-    p1 = Pod("Pod1", "Kubescheduler", "app", "nginx", 2, 1)
-    p2 = Pod("Pod2", "Kubescheduler", "app2", "nginx", 1, 0.5)
-    p3 = Pod("Pod3", "Kubescheduler", "app3", "redis", 4.2, 0.7)
-    p4 = Pod("Pod4", "myscheduler", "app4", "celery", 4.0, 0.7)
+    # Keep doing this indefinitely (whilst the program's running)
+    while True:
+
+        if (pod_queue.empty() == False):
+            # Tell the simulation enviroment to run the kubescheduler activity generator
+            env.process(kubescheduler_generator(env, ideal_service_time, cluster, pod_queue.get()))
+
+        # elif  (pod_queue.empty() == True):
+        #     for node in cluster.getList():
+        #         print('\n *** Node Remaining Resources *** \n')
+        #         print(node.serialize())
+
+        # Calculate the time until the next pod arrives
+        t = random.expovariate(1.0 / inter_arrival_time)
+
+        # Tell the simulation to freeze this function in place
+        # until that sampled inter-arrival time has elapsed
+        yield env.timeout(t)
+
+
+def create_pods():
+    p1 = Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 1)
+    p2 = Pod("Pod1", "Kubescheduler", "app2", "nginx", 1, 0.5)
+    p3 = Pod("Pod2", "Kubescheduler", "app3", "redis", 4.2, 0.7)
+    p4 = Pod("Pod3", "myscheduler", "app4", "celery", 4.0, 0.7)
 
     pod_queue = queue.Queue()
     pod_queue.put(p1)
@@ -32,19 +51,17 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
     pod_file = PodFile()
     pod_file.load(pod_queue)
 
-    # Keep doing this indefinitely (whilst the program's running)
-    while True:
+    return pod_queue
 
-        if (pod_queue.empty() == False):
-            # Tell the simulation enviroment to run the kubescheduler activity generator
-            env.process(kubescheduler_generator(env, ideal_service_time, cluster, pod_queue.get()))
 
-        # Calculate the time until the next pod arrives
-        t = random.expovariate(1.0 / inter_arrival_time)
+def create_nodes(cluster):
+    n1 = Node("n1", 4, 2.4)
+    n2 = Node("n2", 8, 1.4)
+    n3 = Node("n3", 128, 300)
 
-        # Tell the simulation to freeze this function in place
-        # until that sampled inter-arrival time has elapsed
-        yield env.timeout(t)
+    cluster.append(n1)
+    cluster.append(n2)
+    cluster.append(n3)
 
 
 def kubescheduler_generator(env, ideal_service_time, cluster, pod):

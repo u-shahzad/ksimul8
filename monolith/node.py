@@ -26,5 +26,4 @@ class Node:
                 "ID": self.id,
                 "Num of Pods": self.num_of_pods,
                 "Memory": self.memory,
-                "CPU": self.cpu,
-                "Pod List": self.pod_list}
+                "CPU": self.cpu}
