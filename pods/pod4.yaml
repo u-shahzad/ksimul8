@@ -8,7 +8,7 @@ spec:
   schedulerName: default-scheduler
   containers:
   - name: app2
-    image: images.my-company.example/app:v4
+    image: images.my-company.frontend/app:v4
     resources:
       requests:
         memory: "32Mi"

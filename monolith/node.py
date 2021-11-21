@@ -9,6 +9,9 @@ class Node:
         self.num_of_pods = 0 # initially node contains no pod
         self.memory = memory
         self.cpu = cpu
+        self.predicate_check = False
+        self.score = 0
+        self.port = False
         self.pod_list = []
     
     def append(self, pod):

@@ -1,19 +1,22 @@
 @startuml
-class Requirements {
- -resourceType
+class Container {
+ -name
+ -image
+ -execute_container()
 }
 
 class Pod {
  -id
  -name
  -schedulerName
- -containerName
- -containerImage
+ -Container
  -Requirements
- -execute_container()
+ -create_pod()
+ -run_pod()
 }
 
 class Queue {
+ -size
  -list of pods in some order
  -push()
  -pop()
@@ -60,12 +63,13 @@ class Node {
  -resources
  -state
  -list of pods
+ -cpu
+ -memory
  -execute_pod()
 }
 note left of Node::state
   e.g. how many pods are running already
 end note
-
 
 class Cluster {
  -collection of nodes
@@ -84,12 +88,12 @@ note right of Cluster::start_simulation
 end note
 
 Queue ^-- Pod
-Pod --^ Requirements
-Cluster --^ Queue
-Scheduler --^ Queue
+Pod --^ Container
+Cluster -- Queue
+Scheduler -- Queue
 Scheduler --^ Priorities
 Scheduler --^ Predicates
 Cluster -- Scheduler
 Cluster *-- Node
-Node --^ Pod
+Node -- Pod
 @enduml

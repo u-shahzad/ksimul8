@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 
-import simpy, random, json, queue
+import simpy, random, json, queue, logging
 from cluster import Cluster
 from pod import Pod
 from node import Node
 from kubescheduler import Kubescheduler
 from podFile import PodFile
+from plugin import Plugin
+
+
+logging.basicConfig(filename='test.log', level=logging.DEBUG,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 
 def cluster_generator(env, inter_arrival_time, ideal_service_time):
@@ -23,11 +28,6 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
             # Tell the simulation enviroment to run the kubescheduler activity generator
             env.process(kubescheduler_generator(env, ideal_service_time, cluster, pod_queue.get()))
 
-        # elif  (pod_queue.empty() == True):
-        #     for node in cluster.getList():
-        #         print('\n *** Node Remaining Resources *** \n')
-        #         print(node.serialize())
-
         # Calculate the time until the next pod arrives
         t = random.expovariate(1.0 / inter_arrival_time)
 
@@ -37,16 +37,16 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
 
 def create_pods():
-    p1 = Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 1)
-    p2 = Pod("Pod1", "Kubescheduler", "app2", "nginx", 1, 0.5)
-    p3 = Pod("Pod2", "Kubescheduler", "app3", "redis", 4.2, 0.7)
-    p4 = Pod("Pod3", "myscheduler", "app4", "celery", 4.0, 0.7)
+    plug = Plugin()
+    plug._ImageLocalityPriority = True
+    plug._PodFitsResources = True
+    plug._PodFitsHostPorts = True
+
+    p0 = Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 4, plug)
+    
 
     pod_queue = queue.Queue()
-    pod_queue.put(p1)
-    pod_queue.put(p2)
-    pod_queue.put(p3)
-    pod_queue.put(p4)
+    pod_queue.put(p0)
 
     pod_file = PodFile()
     pod_file.load(pod_queue)
@@ -55,9 +55,11 @@ def create_pods():
 
 
 def create_nodes(cluster):
-    n1 = Node("n1", 4, 2.4)
-    n2 = Node("n2", 8, 1.4)
-    n3 = Node("n3", 128, 300)
+    n1 = Node("n1", 2.2, 4.4)
+    n1.port = True
+    n2 = Node("n2", 200, 760)
+    n3 = Node("n3", 200, 760)
+    n2.port = True
 
     cluster.append(n1)
     cluster.append(n2)
@@ -66,7 +68,7 @@ def create_nodes(cluster):
 
 def kubescheduler_generator(env, ideal_service_time, cluster, pod):
     pod_arrival_time = env.now
-    print("* Pod ", pod.id, " entered queue at ", pod_arrival_time, "\n", sep="")
+    print("* Pod ", pod.id, " entered queue at ", pod_arrival_time, "\n")
 
     with cluster.master_node.request() as req:
         # The function freezes in place until the request can be met
@@ -86,7 +88,7 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         print(pod.serialize(), '\n')
 
         pod_assigned_node_time = env.now
-        print("* Pod ", pod.id, " assigned a node at ", pod_assigned_node_time, "\n", sep="")
+        print("* Pod ", pod.id, " assigned a node at ", pod_assigned_node_time, "\n")
 
         scheduling_time = random.expovariate(1.0 / ideal_service_time)
 
