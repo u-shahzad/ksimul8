@@ -4,25 +4,6 @@ class Predicates:
 
         pass
 
-    def apply_predicates(self, node, pod):
-
-        while(True):
-
-            if pod.plugins._PodFitsResources:
-                if node.memory >= pod.memory and node.cpu >= pod.cpu:
-                    pass
-                else:
-                    break
-
-            if pod.plugins._PodFitsHostPorts:
-                if node.port == True:
-                    pass
-                else:
-                    break
-
-            node.append(pod)
-            break
-
     def podFitsHostPorts(self, node):
         '''
             Checks if a Node has free ports (the network protocol kind)
@@ -34,12 +15,15 @@ class Predicates:
         else:
             return False
 
-    def podFitsHost():
+    def podFitsHost(self, node, pod):
         '''
             Checks if a Pod specifies a specific Node by its hostname.
         '''
 
-        pass
+        if node.name == pod.nodeName:
+            return True
+        else:
+            return False
 
     def podFitsResources(self, node, pod):
         '''

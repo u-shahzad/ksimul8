@@ -28,9 +28,16 @@ class Plugin:
         self._EqualPriority = False
         self._EvenPodsSpreadPriority = False
 
-    def custom_plugin1(self):
+    def customPlugin1(self):
 
-        if self._PodFitsResources == True and self._PodFitsHostPorts == True:
-            return True
-        else:
-            return False
+        self._PodFitsHost = True
+        self._PodFitsHostPorts = True
+
+        self._ImageLocalityPriority = True
+
+    def customPlugin2(self):
+
+        self._PodFitsResources = True
+        self._PodFitsHostPorts = True
+
+        self._ImageLocalityPriority = True

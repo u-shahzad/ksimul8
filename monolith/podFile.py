@@ -16,9 +16,7 @@ class PodFile:
                     pod_file = yaml.safe_load(stream)
 
                     plug = Plugin()
-                    plug._ImageLocalityPriority = True
-                    plug._PodFitsResources = True
-                    plug._PodFitsHostPorts = True
+                    plug.customPlugin2()
 
                     name = pod_file['metadata']['name']
                     schedulerName = pod_file['spec']['schedulerName']
@@ -26,8 +24,9 @@ class PodFile:
                     image = pod_file['spec']['containers'][0]['image']
                     memory = int(pod_file['spec']['containers'][0]['resources']['limits']['memory'][:-2])
                     cpu = int(pod_file['spec']['containers'][0]['resources']['limits']['cpu'][:-1])
+                    nodeName = pod_file['spec']['nodeName']
 
-                    pod = Pod(name, schedulerName, containerName, image, memory, cpu, plug)
+                    pod = Pod(name, schedulerName, containerName, image, memory, cpu, plug, nodeName)
 
                     pod_queue.put(pod)
 

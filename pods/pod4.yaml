@@ -25,3 +25,4 @@ spec:
       limits:
         memory: "128Mi"
         cpu: "500m"
+  nodeName: n3

@@ -37,13 +37,16 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
 
 def create_pods():
-    plug = Plugin()
-    plug._ImageLocalityPriority = True
-    plug._PodFitsResources = True
-    plug._PodFitsHostPorts = True
+    # plug = Plugin()
+    # plug._ImageLocalityPriority = True
+    # plug._PodFitsResources = True
+    # plug._PodFitsHostPorts = True
+    # plug._PodFitsHost = True
 
-    p0 = Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 4, plug)
-    
+    plug = Plugin()
+    plug.customPlugin1()
+
+    p0 = Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 4, plug, 'n1')
 
     pod_queue = queue.Queue()
     pod_queue.put(p0)
@@ -58,8 +61,9 @@ def create_nodes(cluster):
     n1 = Node("n1", 2.2, 4.4)
     n1.port = True
     n2 = Node("n2", 200, 760)
-    n3 = Node("n3", 200, 760)
     n2.port = True
+    n3 = Node("n3", 200, 760)
+    n3.port = True
 
     cluster.append(n1)
     cluster.append(n2)

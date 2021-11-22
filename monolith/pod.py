@@ -6,12 +6,12 @@ class Pod:
     id_iter = itertools.count()
 
     def __init__(self, name, schedulerName, containerName,
-                 containerImage, memory, cpu, plugins):
+                 containerImage, memory, cpu, plugins, nodeName = ""):
 
         self.name = name
         self.id = next(Pod.id_iter)
         self.schedulerName = schedulerName
-        self.nodeName = ""
+        self.nodeName = nodeName
         self.containerName = containerName
         self.containerImage = containerImage
         self.memory = memory
@@ -29,7 +29,8 @@ class Pod:
                 "containerImage": self.containerImage,
                 "memoryRequirement": self.memory,
                 "cpuRequirement": self.cpu,
-                "is_Bind": self.is_bind}
+                "is_Bind": self.is_bind,
+                "nodeName": self.nodeName}
 
     def getID(self):
 
