@@ -37,11 +37,6 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
 
 def create_pods():
-    # plug = Plugin()
-    # plug._ImageLocalityPriority = True
-    # plug._PodFitsResources = True
-    # plug._PodFitsHostPorts = True
-    # plug._PodFitsHost = True
 
     plug = Plugin()
     plug.customPlugin1()
@@ -72,7 +67,7 @@ def create_nodes(cluster):
 
 def kubescheduler_generator(env, ideal_service_time, cluster, pod):
     pod_arrival_time = env.now
-    print("* Pod ", pod.id, " entered queue at ", pod_arrival_time, "\n")
+    print(">>>>>>> Pod", pod.id, "entered queue at", pod_arrival_time, "\n")
 
     with cluster.master_node.request() as req:
         # The function freezes in place until the request can be met
@@ -89,11 +84,10 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         # Start kubescheduler
         kubescheduler.scheduling_cycle(cluster, pod)
 
-        print(pod.serialize(), '\n')
-
         pod_assigned_node_time = env.now
-        print("* Pod ", pod.id, " assigned a node at ", pod_assigned_node_time, "\n")
-
+        print(">>>>>>>  Pod", pod.id, "assigned a node at", pod_assigned_node_time, "\n")
+        print(pod.serialize(), '\n')
+        
         scheduling_time = random.expovariate(1.0 / ideal_service_time)
 
         # Tell the simulation to freeze this function in place until that sampled

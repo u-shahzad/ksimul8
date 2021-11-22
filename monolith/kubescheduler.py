@@ -55,15 +55,18 @@ class Kubescheduler(Predicates, Priorites):
         if len(self.feasible_nodes) > 0:
 
             # If multiple feasible nodes found, select on the basis of node score
-
+            print("******* Feasible nodes *********")
             for feasible_node in self.feasible_nodes:
-                print(feasible_node.name)
+                print("-------> " + feasible_node.name)
                 if feasible_node.score > node_rank:
                     node_rank = feasible_node.score
                     self.selected_node = feasible_node
+                    print('=======> Node selected by priority: '+ self.selected_node.name + "\n")
+            print("**********************************\n")
 
+            # If no node selected by scoring
             if self.selected_node is None:
                 self.selected_node = random.choice(self.feasible_nodes)
-
-            print('Selected node: '+ self.selected_node.name)
+                print('=======> Node selected randomly: '+ self.selected_node.name + "\n")
+            
             self.selected_node.append(pod)
