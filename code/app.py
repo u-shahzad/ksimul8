@@ -38,16 +38,17 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
 def create_pods():
 
-    plug = Plugin()
-    plug.customPlugin1()
+    plug1 = Plugin()
+    plug1.customPlugin1()
     plug3 = Plugin()
     plug3.customPlugin3()
 
     pod_queue = queue.Queue()
-    pod_queue.put(Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 4, plug, 'n1'))
-    pod_queue.put(Pod("Pod1", "default-scheduler", "appv2", "celery", 20, 40, plug, 'n4'))
+    pod_queue.put(Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 4, plug1, 'n1'))
+    pod_queue.put(Pod("Pod1", "default-scheduler", "appv2", "celery", 20, 40, plug1, 'n4'))
     pod_queue.put(Pod("Pod2", "Kubescheduler", "appv1.1", "nginx", 2.2, 4.2, plug3, 'n1'))
-
+    pod_queue.put(Pod("Pod3", "Kubescheduler", "app", "nginx", 20, 44, plug1, 'n6'))
+    
     pod_file = PodFile()
     pod_file.load(pod_queue)
 

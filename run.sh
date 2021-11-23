@@ -1,4 +1,4 @@
 #!/bin/bash
 
 rm test.log
-python monolith/app.py
+python code/app.py

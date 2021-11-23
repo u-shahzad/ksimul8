@@ -18,6 +18,8 @@ class Kubescheduler(Predicates, Priorites):
 
         nodes = cluster.getList()
         node_rank = 0
+        lrp_check = False
+        mrp_check = False
 
         for node in nodes:
 
@@ -58,8 +60,13 @@ class Kubescheduler(Predicates, Priorites):
                 if (self.imageLocalityPriority(node, pod)):
                     node.score += 1
 
-            if pod.plugins._LeastRequestedPriority:
+            if pod.plugins._LeastRequestedPriority and lrp_check == False:
                 self.leastRequestedPriority(cluster)
+                lrp_check = True
+
+            if pod.plugins._MostRequestedPriority and mrp_check == False:
+                self.mostRequestedPriority(cluster)
+                mrp_check = True
 
         if len(self.feasible_nodes) > 0:
 
@@ -78,3 +85,6 @@ class Kubescheduler(Predicates, Priorites):
                 logging.info(' \"Node selected randomly: {}\"\n'.format(self.selected_node.name))
             
             self.selected_node.append(pod)
+
+        for node in nodes:
+            print(node.serialize(), '\n')

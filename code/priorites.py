@@ -36,21 +36,35 @@ class Priorites:
         node_list.sort()
 
         for node in nodes:
-            if node.num_of_pods in node_list[:1]:
+            if node.num_of_pods == node_list[0]:
                 self.least_used_node = node
                 break
 
         print("least used node {}".format(self.least_used_node.name))
         self.least_used_node.score += 1
 
-    def mostRequestedPriority():
+    def mostRequestedPriority(self, cluster):
         '''
             Favors nodes with most requested resources. This policy will fit
             the scheduled Pods onto the smallest number of Nodes needed to run
             your overall set of workloads.
         '''
 
-        pass
+        nodes = cluster.getList()
+        node_list = []
+
+        for node in nodes:
+            node_list.append(node.num_of_pods)
+
+        node_list.sort()
+
+        for node in nodes:
+            if node.num_of_pods == node_list[-1]:
+                self.least_used_node = node
+                break
+
+        print("Most used node {}".format(self.least_used_node.name))
+        self.least_used_node.score += 1
 
     def requestedToCapacityRatioPriority():
         '''

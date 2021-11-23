@@ -9,7 +9,6 @@ class Node:
         self.num_of_pods = 0 # initially node contains no pod
         self.memory = memory
         self.cpu = cpu
-        self.predicate_check = False
         self.score = 0
         self.port = port
         self.label = label
@@ -18,6 +17,7 @@ class Node:
     def append(self, pod):
         self.pod_list.append(pod)
         self.memory -= pod.memory
+        self.cpu -= pod.cpu
         pod.is_bind = True
         pod.nodeName = self.name
         self.num_of_pods += 1
@@ -30,4 +30,5 @@ class Node:
                 "ID": self.id,
                 "Num of Pods": self.num_of_pods,
                 "Memory": self.memory,
-                "CPU": self.cpu}
+                "CPU": self.cpu,
+                "Score": self.score}

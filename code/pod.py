@@ -24,9 +24,7 @@ class Pod:
 
         return {"name": self.name,
                 "podID": self.id,
-                "schedulerName": self.schedulerName,
                 "nodeName": self.nodeName,
-                "containerName": self.containerName,
                 "containerImage": self.containerImage,
                 "memoryRequirement": self.memory,
                 "cpuRequirement": self.cpu,
