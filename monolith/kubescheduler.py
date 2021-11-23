@@ -1,8 +1,10 @@
 from predicates import Predicates
 from priorites import Priorites
-from node import Node
-import random
+import random, logging
 
+
+logging.basicConfig(filename='test.log', level=logging.DEBUG,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 class Kubescheduler(Predicates, Priorites):
 
@@ -41,6 +43,12 @@ class Kubescheduler(Predicates, Priorites):
                     else:
                         break
 
+                if pod.plugins._MatchNodeSelector:
+                    if (self.matchNodeSelector(node, pod)):
+                        pass
+                    else:
+                        break
+
                 self.feasible_nodes.append(node)
                 break
 
@@ -50,23 +58,23 @@ class Kubescheduler(Predicates, Priorites):
                 if (self.imageLocalityPriority(node, pod)):
                     node.score += 1
 
-        # 
+            if pod.plugins._LeastRequestedPriority:
+                self.leastRequestedPriority(cluster)
 
         if len(self.feasible_nodes) > 0:
 
             # If multiple feasible nodes found, select on the basis of node score
-            print("******* Feasible nodes *********")
+            logging.info(" Feasible nodes are following;")
             for feasible_node in self.feasible_nodes:
-                print("-------> " + feasible_node.name)
+                logging.info(" ---> {}".format(feasible_node.name))
                 if feasible_node.score > node_rank:
                     node_rank = feasible_node.score
                     self.selected_node = feasible_node
-                    print('=======> Node selected by priority: '+ self.selected_node.name + "\n")
-            print("**********************************\n")
+                    logging.info(' \"Node selected by priority: {}\"\n'.format(self.selected_node.name))
 
             # If no node selected by scoring
             if self.selected_node is None:
                 self.selected_node = random.choice(self.feasible_nodes)
-                print('=======> Node selected randomly: '+ self.selected_node.name + "\n")
+                logging.info(' \"Node selected randomly: {}\"\n'.format(self.selected_node.name))
             
             self.selected_node.append(pod)

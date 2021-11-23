@@ -36,12 +36,15 @@ class Predicates:
         else:
             return False
 
-    def matchNodeSelector():
+    def matchNodeSelector(self, node, pod):
         '''
             Checks if a Pod's Node Selector matches the Node's label(s).
         '''
 
-        pass
+        if node.label == pod.nodeSelector:
+            return True
+        else:
+            return False
 
     def noVolumeZoneConflict():
         '''

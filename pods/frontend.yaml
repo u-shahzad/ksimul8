@@ -14,8 +14,8 @@ spec:
         memory: "64Mi"
         cpu: "250m"
       limits:
-        memory: "128Mi"
-        cpu: "500m"
+        memory: "32Mi"
+        cpu: "100m"
   - name: log-aggregator
     image: images.my-company.example/log-aggregator:v6
     resources:
@@ -26,3 +26,5 @@ spec:
         memory: "128Mi"
         cpu: "500m"
   nodeName: n2
+  nodeSelector:
+    disktype: ''

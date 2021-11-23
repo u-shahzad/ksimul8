@@ -26,3 +26,5 @@ spec:
         memory: "128Mi"
         cpu: "500m"
   nodeName: n3
+  nodeSelector:
+    disktype: ssd

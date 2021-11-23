@@ -34,10 +34,19 @@ class Plugin:
         self._PodFitsHostPorts = True
 
         self._ImageLocalityPriority = True
+        self._LeastRequestedPriority = True
 
     def customPlugin2(self):
 
         self._PodFitsResources = True
         self._PodFitsHostPorts = True
+        self._MatchNodeSelector = True
 
         self._ImageLocalityPriority = True
+        self._LeastRequestedPriority = True
+
+    def customPlugin3(self):
+
+        self._PodFitsResources = True
+
+        self._LeastRequestedPriority = True

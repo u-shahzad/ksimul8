@@ -3,7 +3,7 @@ import itertools
 
 class Node:
     id_iter = itertools.count()
-    def __init__(self, name, memory, cpu):
+    def __init__(self, name, memory, cpu, label = '', port = False):
         self.name = name
         self.id = next(Node.id_iter)
         self.num_of_pods = 0 # initially node contains no pod
@@ -11,7 +11,8 @@ class Node:
         self.cpu = cpu
         self.predicate_check = False
         self.score = 0
-        self.port = False
+        self.port = port
+        self.label = label
         self.pod_list = []
     
     def append(self, pod):

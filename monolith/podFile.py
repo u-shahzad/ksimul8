@@ -25,8 +25,9 @@ class PodFile:
                     memory = int(pod_file['spec']['containers'][0]['resources']['limits']['memory'][:-2])
                     cpu = int(pod_file['spec']['containers'][0]['resources']['limits']['cpu'][:-1])
                     nodeName = pod_file['spec']['nodeName']
+                    nodeSelector = pod_file['spec']['nodeSelector']['disktype']
 
-                    pod = Pod(name, schedulerName, containerName, image, memory, cpu, plug, nodeName)
+                    pod = Pod(name, schedulerName, containerName, image, memory, cpu, plug, nodeName, nodeSelector)
 
                     pod_queue.put(pod)
 

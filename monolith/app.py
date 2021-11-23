@@ -40,11 +40,13 @@ def create_pods():
 
     plug = Plugin()
     plug.customPlugin1()
-
-    p0 = Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 4, plug, 'n1')
+    plug3 = Plugin()
+    plug3.customPlugin3()
 
     pod_queue = queue.Queue()
-    pod_queue.put(p0)
+    pod_queue.put(Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 4, plug, 'n1'))
+    pod_queue.put(Pod("Pod1", "default-scheduler", "appv2", "celery", 20, 40, plug, 'n4'))
+    pod_queue.put(Pod("Pod2", "Kubescheduler", "appv1.1", "nginx", 2.2, 4.2, plug3, 'n1'))
 
     pod_file = PodFile()
     pod_file.load(pod_queue)
@@ -53,21 +55,18 @@ def create_pods():
 
 
 def create_nodes(cluster):
-    n1 = Node("n1", 2.2, 4.4)
-    n1.port = True
-    n2 = Node("n2", 200, 760)
-    n2.port = True
-    n3 = Node("n3", 200, 760)
-    n3.port = True
 
-    cluster.append(n1)
-    cluster.append(n2)
-    cluster.append(n3)
+    cluster.append(Node("n1", 6.2, 8.4, '', True))
+    cluster.append(Node("n2", 100, 260, '', True))
+    cluster.append(Node("n3", 200, 460, '', True))
+    cluster.append(Node("n4", 300, 660, '', True))
+    cluster.append(Node("n5", 400, 860, 'ssd', True))
+    cluster.append(Node("n6", 500, 1060, '', False))
 
 
 def kubescheduler_generator(env, ideal_service_time, cluster, pod):
     pod_arrival_time = env.now
-    print(">>>>>>> Pod", pod.id, "entered queue at", pod_arrival_time, "\n")
+    logging.info(' Pod {} entered queue at {} time unit \n'.format(pod.id, pod_arrival_time))
 
     with cluster.master_node.request() as req:
         # The function freezes in place until the request can be met
@@ -85,7 +84,9 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         kubescheduler.scheduling_cycle(cluster, pod)
 
         pod_assigned_node_time = env.now
-        print(">>>>>>>  Pod", pod.id, "assigned a node at", pod_assigned_node_time, "\n")
+
+        if pod.is_bind == True:
+            logging.info(' Pod {} assigned a node at {} time unit \n'.format(pod.id, pod_assigned_node_time))
         print(pod.serialize(), '\n')
         
         scheduling_time = random.expovariate(1.0 / ideal_service_time)

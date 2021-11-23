@@ -1,8 +1,8 @@
 class Priorites:
 
-    def __init__(self) -> None:
+    def __init__(self):
 
-        pass
+        self.least_used_node = None
 
     def selectorSpreadPriority():
         '''
@@ -20,14 +20,28 @@ class Priorites:
 
         pass
 
-    def leastRequestedPriority():
+    def leastRequestedPriority(self, cluster):
         '''
             Favors nodes with fewer requested resources. In other words, the
             more Pods that are placed on a Node, and the more resources those
             Pods use, the lower the ranking this policy will give.
         '''
 
-        pass
+        nodes = cluster.getList()
+        node_list = []
+
+        for node in nodes:
+            node_list.append(node.num_of_pods)
+
+        node_list.sort()
+
+        for node in nodes:
+            if node.num_of_pods in node_list[:1]:
+                self.least_used_node = node
+                break
+
+        print("least used node {}".format(self.least_used_node.name))
+        self.least_used_node.score += 1
 
     def mostRequestedPriority():
         '''

@@ -6,7 +6,7 @@ class Pod:
     id_iter = itertools.count()
 
     def __init__(self, name, schedulerName, containerName,
-                 containerImage, memory, cpu, plugins, nodeName = ""):
+                 containerImage, memory, cpu, plugins, nodeName = "", nodeSelector = ''):
 
         self.name = name
         self.id = next(Pod.id_iter)
@@ -18,6 +18,7 @@ class Pod:
         self.cpu = cpu
         self.is_bind = False
         self.plugins = plugins
+        self.nodeSelector = nodeSelector
 
     def serialize(self):
 
