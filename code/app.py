@@ -45,9 +45,9 @@ def create_pods():
 
     pod_queue = queue.Queue()
     pod_queue.put(Pod("Pod0", "Kubescheduler", "app", "nginx", 2, 4, plug1, 'n1'))
-    pod_queue.put(Pod("Pod1", "default-scheduler", "appv2", "celery", 20, 40, plug1, 'n4'))
-    pod_queue.put(Pod("Pod2", "Kubescheduler", "appv1.1", "nginx", 2.2, 4.2, plug3, 'n1'))
-    pod_queue.put(Pod("Pod3", "Kubescheduler", "app", "nginx", 20, 44, plug1, 'n6'))
+    pod_queue.put(Pod("Pod1", "default-scheduler", "appv2", "celery", 10, 16, plug3, 'n4'))
+    pod_queue.put(Pod("Pod2", "Kubescheduler", "appv1.1", "nginx", 2, 4, plug3, 'n1'))
+    pod_queue.put(Pod("Pod3", "Kubescheduler", "app", "celery", 20, 44, plug1, 'n4'))
     
     pod_file = PodFile()
     pod_file.load(pod_queue)
@@ -57,12 +57,11 @@ def create_pods():
 
 def create_nodes(cluster):
 
-    cluster.append(Node("n1", 6.2, 8.4, '', True))
-    cluster.append(Node("n2", 100, 260, '', True))
-    cluster.append(Node("n3", 200, 460, '', True))
-    cluster.append(Node("n4", 300, 660, '', True))
-    cluster.append(Node("n5", 400, 860, 'ssd', True))
-    cluster.append(Node("n6", 500, 1060, '', False))
+    cluster.append(Node("n1", 3, 5, '', True))
+    cluster.append(Node("n2", 500, 1060, '', False))
+    cluster.append(Node("n3", 500, 1060, 'ssd', True))
+    cluster.append(Node("n4", 500, 1060, '', True))
+    cluster.append(Node("n5", 500, 1060, '', True))
 
 
 def kubescheduler_generator(env, ideal_service_time, cluster, pod):

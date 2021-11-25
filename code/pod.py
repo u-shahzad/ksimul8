@@ -28,8 +28,7 @@ class Pod:
                 "containerImage": self.containerImage,
                 "memoryRequirement": self.memory,
                 "cpuRequirement": self.cpu,
-                "is_Bind": self.is_bind,
-                "nodeName": self.nodeName}
+                "is_Bind": self.is_bind}
 
     def getID(self):
 

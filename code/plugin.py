@@ -50,3 +50,4 @@ class Plugin:
         self._PodFitsResources = True
 
         self._LeastRequestedPriority = True
+        self._ImageLocalityPriority = True

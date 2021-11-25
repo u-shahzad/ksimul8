@@ -88,3 +88,4 @@ class Kubescheduler(Predicates, Priorites):
 
         for node in nodes:
             print(node.serialize(), '\n')
+            node.score = 0
