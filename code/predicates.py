@@ -4,16 +4,16 @@ class Predicates:
 
         pass
 
-    def podFitsHostPorts(self, node):
+    def podFitsHostPorts(self, node, pod):
         '''
             Checks if a Node has free ports (the network protocol kind)
             for the Pod ports the Pod is requesting.
         '''
 
-        if node.port == True:
-            return True
-        else:
+        if pod.port in node.port:
             return False
+        else:
+            return True
 
     def podFitsHost(self, node, pod):
         '''
@@ -31,7 +31,7 @@ class Predicates:
             to meet the requirement of the Pod.
         '''
 
-        if node.memory >= pod.memory and node.cpu >= pod.cpu:
+        if node.memory > pod.memory and node.cpu > pod.cpu:
             return True
         else:
             return False

@@ -1,0 +1,61 @@
+apiVersion: v1
+metadata:
+  name: InputFile
+cluster:
+  node:
+  - name: 'n1'
+    memory: 3
+    cpu: 5
+    label: ''
+  - name: 'n2'
+    memory: 500
+    cpu: 1060
+    label: ''
+  - name: 'n3'
+    memory: 500
+    cpu: 1060
+    label: 'ssd'
+  - name: 'n4'
+    memory: 500
+    cpu: 1060
+    label: ''
+  - name: 'n5'
+    memory: 40
+    cpu: 20
+    label: 'ssd'
+  - name: 'n6'
+    memory: 80
+    cpu: 40
+    label: ''
+pods:
+  pod:
+  - name: 'pod101'
+    schedulerName: 'default-scheduler'
+    containerName: 'container101'
+    containerImage: 'nginx'
+    memory: 4
+    cpu: 2
+    plugins: 'FFTFFFFFFFFTFFFFFFTFFF'
+    nodeName: ''
+    nodeSelector: ''
+    port: 80
+  - name: 'pod102'
+    schedulerName: 'default-scheduler'
+    containerName: 'container102'
+    containerImage: 'celery'
+    memory: 4
+    cpu: 2
+    plugins: 'FFTFFFFFFFFTFFFFFFTFFF'
+    nodeName: ''
+    nodeSelector: ''
+    port: 90
+  - name: 'pod103'
+    schedulerName: 'default-scheduler'
+    containerName: 'container103'
+    containerImage: 'img103'
+    memory: 4
+    cpu: 2
+    plugins: 'FFTFFFFFFFFTFFFFFFTFFF'
+    nodeName: ''
+    nodeSelector: ''
+    port: 34

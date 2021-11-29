@@ -27,9 +27,8 @@ class PodFile:
                     nodeName = pod_file['spec']['nodeName']
                     nodeSelector = pod_file['spec']['nodeSelector']['disktype']
 
-                    pod = Pod(name, schedulerName, containerName, image, memory, cpu, plug, nodeName, nodeSelector)
-
-                    pod_queue.put(pod)
+                    pod_queue.put(Pod(name, schedulerName, containerName, image, 
+                                memory, cpu, plug, nodeName, nodeSelector))
 
                 except yaml.YAMLError as exc:
                     print(exc)

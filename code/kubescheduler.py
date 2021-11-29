@@ -34,7 +34,7 @@ class Kubescheduler(Predicates, Priorites):
                         break
 
                 if pod.plugins._PodFitsHostPorts:
-                    if (self.podFitsHostPorts(node)):
+                    if (self.podFitsHostPorts(node, pod)):
                         pass
                     else:
                         break
