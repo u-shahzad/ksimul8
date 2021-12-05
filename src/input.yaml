@@ -1,6 +1,7 @@
 apiVersion: v1
 metadata:
   name: InputFile
+  simulationTime: 60
 cluster:
   node:
   - name: 'n1'
@@ -24,10 +25,12 @@ cluster:
     cpu: 20
     label: 'ssd'
   - name: 'n6'
-    memory: 80
-    cpu: 40
+    memory: 20
+    cpu: 10
     label: ''
 pods:
+  arrivalTime: 5
+  serviceTime: 6
   pod:
   - name: 'pod101'
     schedulerName: 'default-scheduler'
@@ -55,7 +58,7 @@ pods:
     containerImage: 'img103'
     memory: 4
     cpu: 2
-    plugins: 'FFTFFFFFFFFTFFFFFFTFFF'
+    plugins: 'TFTFFFFFFFFTFFFFFFTFFF'
     nodeName: ''
     nodeSelector: ''
-    port: 34
+    port: null

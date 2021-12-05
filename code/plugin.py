@@ -1,11 +1,19 @@
 class Plugin:
 
-    def __init__(self, _pfhp = False, _pfh = False, _pfr = False, _mns = False,
-                    _nvzc = False, _ndc = False, _mCSIvc = False, _ptnt = False,
-                    _cvb = False, ssp = False, ipap = False, lrp = False,
-                    mrp = False, rtcrp = False, bra = False, npapp = False,
-                    nap = False, ttp = False, ilp = False, ssp_ = False,
-                    ep = False, epsp = False):
+    '''
+    A scheduling Profile allows you to configure the different stages of
+    scheduling in the kube-scheduler. Each stage is exposed in an extension
+    point. Plugins provide scheduling behaviors by implementing one or more
+    of these extension points.
+    '''
+
+    def __init__(
+                self, _pfhp=False, _pfh=False, _pfr=False, _mns=False,
+                _nvzc=False, _ndc=False, _mCSIvc=False, _ptnt=False,
+                _cvb=False, ssp=False, ipap=False, lrp=False, mrp=False,
+                rtcrp=False, bra=False, npapp=False, nap=False, ttp=False,
+                ilp=False, ssp_=False, ep=False, epsp=False
+                ):
 
         # Predicates
         self._PodFitsHostPorts = _pfhp
@@ -32,28 +40,3 @@ class Plugin:
         self._ServiceSpreadingPriority = ssp_
         self._EqualPriority = ep
         self._EvenPodsSpreadPriority = epsp
-
-    def customPlugin1(self):
-
-        self._PodFitsHost = True
-        self._PodFitsHostPorts = True
-        self._PodFitsResources = True
-
-        self._ImageLocalityPriority = True
-        self._LeastRequestedPriority = True
-
-    def customPlugin2(self):
-
-        self._PodFitsResources = True
-        self._PodFitsHostPorts = True
-        self._MatchNodeSelector = True
-
-        self._ImageLocalityPriority = True
-        self._LeastRequestedPriority = True
-
-    def customPlugin3(self):
-
-        self._PodFitsResources = True
-
-        self._LeastRequestedPriority = True
-        self._ImageLocalityPriority = True

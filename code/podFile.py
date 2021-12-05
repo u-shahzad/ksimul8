@@ -15,8 +15,9 @@ class PodFile:
                     # print (yaml.dump(yaml.safe_load(stream), default_flow_style=False))
                     pod_file = yaml.safe_load(stream)
 
-                    plug = Plugin()
-                    plug.customPlugin2()
+                    plug = Plugin(True, True, False, False, False, False, False, False, False
+                                    , False, False, True, False, False, False, False, False, False
+                                    , True, False, False, False)
 
                     name = pod_file['metadata']['name']
                     schedulerName = pod_file['spec']['schedulerName']

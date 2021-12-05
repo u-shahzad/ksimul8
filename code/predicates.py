@@ -1,5 +1,10 @@
 class Predicates:
 
+    '''
+    Predicates are hard constraints that can't be violated. It is a
+    combination of items provided by the system that users can apply
+    '''
+
     def __init__(self) -> None:
 
         pass
