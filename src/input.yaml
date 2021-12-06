@@ -1,7 +1,7 @@
 apiVersion: v1
 metadata:
   name: InputFile
-  simulationTime: 60
+  simulationTime: 80
 cluster:
   node:
   - name: 'n1'
@@ -48,7 +48,7 @@ pods:
     containerImage: 'celery'
     memory: 4
     cpu: 2
-    plugins: 'FFTFFFFFFFFTFFFFFFTFFF'
+    plugins: 'FFTFFFFFFFFFTFFFFFTFFF'
     nodeName: ''
     nodeSelector: ''
     port: 90

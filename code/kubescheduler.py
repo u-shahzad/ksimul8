@@ -1,7 +1,14 @@
 from predicates import Predicates
 from priorites import Priorites
+from rich.console import Console
+from rich.table import Table
+from rich.traceback import install
 import logging
+import time
+install()
 
+
+console = Console()
 
 logging.basicConfig(filename='test.log', level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:%(message)s')
@@ -43,24 +50,37 @@ class Kubescheduler(Predicates, Priorites):
 
                 if pod.plugins._PodFitsResources:
                     if (self.podFitsResources(node, pod)):
+                        console.log(
+                            ":thumbs_up: Pod Fits Resources for node: {}".format(node.name),
+                            style="cyan")
+                        time.sleep(0.1)
                         pass
                     else:
                         break
 
                 if pod.plugins._PodFitsHostPorts:
                     if (self.podFitsHostPorts(node, pod)):
+                        console.log(":thumbs_up: Pod Fits Host Ports: {}".format(node.name),
+                            style="cyan")
+                        time.sleep(0.1)
                         pass
                     else:
                         break
 
                 if pod.plugins._PodFitsHost:
                     if (self.podFitsHost(node, pod)):
+                        console.log(":thumbs_up: Pod Fits Host: {}".format(node.name),
+                            style="cyan")
+                        time.sleep(0.1)
                         pass
                     else:
                         break
 
                 if pod.plugins._MatchNodeSelector:
                     if (self.matchNodeSelector(node, pod)):
+                        console.log(":thumbs_up: Node Selector Matched: {}".format(node.name),
+                            style="cyan")
+                        time.sleep(0.1)
                         pass
                     else:
                         break
@@ -73,6 +93,8 @@ class Kubescheduler(Predicates, Priorites):
             if pod.plugins._ImageLocalityPriority:
                 if (self.imageLocalityPriority(node, pod)):
                     node.score += 1
+                    console.log(":cd: Image locality Found", style="cyan")
+                    time.sleep(0.1)
 
             if pod.plugins._LeastRequestedPriority and lrp_check is False:
                 self.leastRequestedPriority(cluster)
@@ -95,6 +117,24 @@ class Kubescheduler(Predicates, Priorites):
             logging.info(' \"Selected Node: {}\"\n'.format(
                             self.selected_node.name))
 
+        table = Table(title="Node Description")
+
+        table.add_column("Name", style="cyan")
+        table.add_column("ID", style="magenta")
+        table.add_column("Num of Pods", style="green")
+        table.add_column("Memory", style="cyan")
+        table.add_column("CPU", style="magenta")
+        table.add_column("Score", style="green")
+        table.add_column("Port", style="cyan")
+
         for node in nodes:
-            print(node.serialize(), '\n')
+            # print(node.serialize(), '\n')
+
+            table.add_row(node.name, str(node.id), str(node.num_of_pods),
+                            str(node.memory), str(node.cpu), str(node.score),
+                            str(node.port))
+            time.sleep(0.1)
+
             node.score = 0  # clear the node score for the next pod scheduling
+
+        console.log(table)

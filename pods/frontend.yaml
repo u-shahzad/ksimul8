@@ -11,10 +11,10 @@ spec:
     image: images.my-company.frontend/app:v4
     resources:
       requests:
-        memory: "64Mi"
+        memory: "1000Mi"
         cpu: "250m"
       limits:
-        memory: "32Mi"
+        memory: "1000Mi"
         cpu: "100m"
   - name: log-aggregator
     image: images.my-company.example/log-aggregator:v6

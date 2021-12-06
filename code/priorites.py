@@ -1,3 +1,10 @@
+from rich import style
+from rich.console import Console
+import time
+
+
+console = Console()
+
 class Priorites:
 
     '''
@@ -8,6 +15,7 @@ class Priorites:
     def __init__(self):
 
         self.least_used_node = None
+        self.most_used_node = None
 
     def selectorSpreadPriority():
         '''
@@ -45,7 +53,9 @@ class Priorites:
                 self.least_used_node = node
                 break
 
-        print("least used node {}".format(self.least_used_node.name))
+        console.log(":arrow_down: Least used node {}".format(self.least_used_node.name),
+                        style="cyan")
+        time.sleep(0.1)
         self.least_used_node.score += 1
 
     def mostRequestedPriority(self, cluster):
@@ -65,11 +75,13 @@ class Priorites:
 
         for node in nodes:
             if node.num_of_pods == node_list[-1]:
-                self.least_used_node = node
+                self.most_used_node = node
                 break
 
-        print("Most used node {}".format(self.least_used_node.name))
-        self.least_used_node.score += 1
+        console.log(":arrow_up: Most used node {}".format(self.most_used_node.name),
+                        style="cyan")
+        time.sleep(0.1)
+        self.most_used_node.score += 1
 
     def requestedToCapacityRatioPriority():
         '''

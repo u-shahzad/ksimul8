@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 
+from rich import style, table
+from rich import console
 from cluster import Cluster
 from pod import Pod
 from node import Node
 from kubescheduler import Kubescheduler
 from podFile import PodFile
 from plugin import Plugin
+from rich.console import Console
+from rich.table import Table
+from rich.traceback import install
+from rich.markdown import Markdown
+from rich.progress import track
 import simpy
 import random
 import queue
@@ -13,7 +20,22 @@ import logging
 import yaml
 import glob
 import os
+import time
+install()  # creates a readable traceback
 
+
+table = Table(title="Pod Description")
+
+table.add_column("Name", style="cyan")
+table.add_column("ID", style="magenta")
+table.add_column("Node Name", style="green")
+table.add_column("Container Image", style="cyan")
+table.add_column("Memory Req", style="magenta")
+table.add_column("CPU Req", style="green")
+table.add_column("Bind", style="cyan")
+table.add_column("Port", style="magenta")
+
+console = Console(record=True)
 
 '''
 creates a test.log file which contains the result of the experiment performed.
@@ -28,6 +50,9 @@ def create_nodes(cluster):
     This function creates all working nodes described in the input file.
     '''
 
+    console.log("===> Creating Nodes ",
+                    style="bold blue")
+
     for filename in glob.glob('src/*.yaml'):  # selects on .yaml extention file
 
         with open(os.path.join(os.getcwd(), filename), 'r') as stream:
@@ -35,10 +60,8 @@ def create_nodes(cluster):
             try:
                 input = yaml.safe_load(stream)  # loads the data in input file
 
-                i = 0  # check to select list of nodes
-
                 # loop will run till it reach the final node in the list
-                while i < len(input['cluster']['node']):
+                for i in track(range(len(input['cluster']['node']))):
 
                     name = input['cluster']['node'][i]['name']
                     memory = input['cluster']['node'][i]['memory']
@@ -48,7 +71,7 @@ def create_nodes(cluster):
                     # create node and add it in the cluster
                     cluster.append(Node(name, memory, cpu, label))
 
-                    i += 1
+                    time.sleep(0.2)
 
             except yaml.YAMLError as exc:
 
@@ -56,6 +79,9 @@ def create_nodes(cluster):
 
 
 def create_pods():
+
+    console.log("===> Creating Pods ",
+                    style="bold blue")
 
     plug1 = Plugin(
                     True, True, False, False, False, False, False, False, False,
@@ -72,8 +98,7 @@ def create_pods():
             try:
                 input = yaml.safe_load(stream)
 
-                i = 0
-                while i < len(input['pods']['pod']):
+                for i in track(range(len(input['pods']['pod']))):
 
                     name = input['pods']['pod'][i]['name']
                     schedulerName = input['pods']['pod'][i]['schedulerName']
@@ -140,7 +165,7 @@ def create_pods():
                                     nodeName, nodeSelector, port
                                     ))
 
-                    i += 1
+                    time.sleep(0.2)
 
             except yaml.YAMLError as exc:
 
@@ -158,11 +183,15 @@ def create_pods():
 
 def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
+    console.log("Create Cluster\n", style="bold green")
     cluster = Cluster(env, 1)  # create cluster with single master node
+    time.sleep(0.2)
 
     create_nodes(cluster)  # calling function to create nodes
 
     pod_queue = create_pods()  # get the queue containing the pods
+
+    console.log("Start Kubescheduler\n", style="bold green")
 
     # Keep doing this indefinitely (whilst the program's running)
     while True:
@@ -215,7 +244,12 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         if pod.is_bind is True:
             logging.info(' Pod {} assigned a node at {} time unit \n'.format(
                             pod.id, pod_assigned_node_time))
-        print(pod.serialize(), '\n')
+        table.add_row(pod.name, str(pod.id), pod.nodeName, pod.containerImage,
+                        str(pod.memory), str(pod.cpu),
+                        str(pod.is_bind), str(pod.port))
+        time.sleep(0.1)
+
+        console.log(table)
 
         scheduling_time = random.expovariate(1.0 / ideal_service_time)
 
@@ -254,6 +288,11 @@ def main():
     inter_arrival_time = arrival_time
     ideal_service_time = service_time
 
+    MARKDOWN = """# Start Simulation"""
+    md = Markdown(MARKDOWN)
+    console.log(md, style="bold magenta")
+    time.sleep(0.2)
+
     # Start the cluster
     env.process(cluster_generator(env, inter_arrival_time, ideal_service_time))
 
@@ -262,6 +301,8 @@ def main():
     our model, so for one hour of simulated time)
     '''
     env.run(until=simulation_time)
+
+    console.save_html("demo.html")
 
 
 if __name__ == "__main__":
