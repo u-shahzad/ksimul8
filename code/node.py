@@ -24,7 +24,7 @@ class Node:
         self.label = label  # defines some extra feature in the node
         self.pod_list = []  # contains list of running pods in the node
 
-    def append(self, pod):
+    def add_pod(self, pod):
         self.pod_list.append(pod)  # bind pod to the node
         self.memory -= pod.memory  # decreasing node memory resource
         self.cpu -= pod.cpu  # decreasing node cpu resource
@@ -35,6 +35,19 @@ class Node:
         # if pod also contains a network port, add in the port list
         if pod.port is not None:
             self.port.append(pod.port)
+
+    def remove_pod(self, pod):
+        self.pod_list.remove(pod)  # remove pod from the node
+        self.memory += pod.memory  # releasing node memory resource
+        self.cpu += pod.cpu  # releasing node cpu resource
+        pod.is_bind = False  # changing pod state to unbind
+        pod.nodeName = ''  # removing node name of the pod
+        self.num_of_pods -= 1  # decrement the number of pods in the node
+
+        # if pod also contains a network port, release it from the port list
+        if pod.port is not None:
+            self.port.remove(pod.port)
+
 
     def getList(self):
         return self.pod_list  # returns the list of pods in the node

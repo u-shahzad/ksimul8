@@ -28,6 +28,7 @@ class Pod:
         self.plugins = plugins  # set of predicates and priorites for the pod
         self.nodeSelector = nodeSelector  # a field to check node label
         self.port = port  # network port requirement of the pod
+        self.node = None  # the node object which pod will bind in the future
 
     def serialize(self):
 

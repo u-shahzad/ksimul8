@@ -125,7 +125,8 @@ class Kubescheduler(Predicates, Priorites):
 
             # select the node with the highest score
             self.selected_node = self.feasible_nodes[-1]
-            self.selected_node.append(pod)  # add the pod to the selected node
+            self.selected_node.add_pod(pod)  # add the pod to the selected node
+            pod.node = self.selected_node  # bind pod to the selected node
 
             logging.info(' \"Selected Node: {}\"\n'.format(
                             self.selected_node.name))

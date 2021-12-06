@@ -21,7 +21,8 @@ import yaml
 import glob
 import os
 import time
-install()  # creates a readable traceback
+import asyncio
+install()  # creates a better readable traceback
 
 
 table = Table(title="Pod Description")
@@ -50,8 +51,7 @@ def create_nodes(cluster):
     This function creates all working nodes described in the input file.
     '''
 
-    console.log("===> Creating Nodes ",
-                    style="bold blue")
+    console.log("===> Creating Nodes ", style="bold blue")
 
     for filename in glob.glob('src/*.yaml'):  # selects on .yaml extention file
 
@@ -80,8 +80,7 @@ def create_nodes(cluster):
 
 def create_pods():
 
-    console.log("===> Creating Pods ",
-                    style="bold blue")
+    console.log("===> Creating Pods ", style="bold blue")
 
     plug1 = Plugin(
                     True, True, False, False, False, False, False, False, False,
@@ -181,6 +180,14 @@ def create_pods():
     return pod_queue
 
 
+def drop_pod(pod):
+    console.log("\n===> Removing Pod\n", style="bold red")
+    pod.node.remove_pod(pod)
+    console.log(pod.node.serialize())
+    pod.node = None
+    console.log(pod.serialize())
+
+
 def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
     console.log("---> Start Cluster\n", style="bold green")
@@ -252,6 +259,9 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         console.log(table)
 
         scheduling_time = random.expovariate(1.0 / ideal_service_time)
+
+        # if (pod.name == 'pod5'):
+        #     drop_pod(pod)
 
         '''
         Tell the simulation to freeze this function in place until that
