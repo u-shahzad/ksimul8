@@ -53,7 +53,7 @@ class Priorites:
                 self.least_used_node = node
                 break
 
-        console.log(":arrow_down: Least used node {}".format(self.least_used_node.name),
+        console.log(":arrow_lower_left:  Least used node {}".format(self.least_used_node.name),
                         style="cyan")
         time.sleep(0.1)
         self.least_used_node.score += 1
@@ -78,7 +78,7 @@ class Priorites:
                 self.most_used_node = node
                 break
 
-        console.log(":arrow_up: Most used node {}".format(self.most_used_node.name),
+        console.log(":arrow_upper_right:  Most used node {}".format(self.most_used_node.name),
                         style="cyan")
         time.sleep(0.1)
         self.most_used_node.score += 1

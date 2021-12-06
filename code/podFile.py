@@ -15,7 +15,7 @@ class PodFile:
                     # print (yaml.dump(yaml.safe_load(stream), default_flow_style=False))
                     pod_file = yaml.safe_load(stream)
 
-                    plug = Plugin(True, True, False, False, False, False, False, False, False
+                    plug = Plugin(True, True, True, False, False, False, False, False, False
                                     , False, False, True, False, False, False, False, False, False
                                     , True, False, False, False)
 

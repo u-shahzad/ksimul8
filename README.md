@@ -33,6 +33,15 @@ inside the project's root.
 
 ### Run the project
 
-To run the project execute the following command:
+To run the project for first time execute the following command:
+
+`python code/app.py`
+
+Later you can use the following command:
 
 `bash run.sh`
+
+Reason: the application creates a test.log file at every execution, and
+the bash file (run.sh) removes the log file to obtain fresh result everytime.
+It may cause a **file not found error** if we execute this command first time,
+or if we delete the test.log file manually.

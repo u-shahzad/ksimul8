@@ -26,14 +26,14 @@ install()  # creates a readable traceback
 
 table = Table(title="Pod Description")
 
-table.add_column("Name", style="cyan")
-table.add_column("ID", style="magenta")
-table.add_column("Node Name", style="green")
-table.add_column("Container Image", style="cyan")
-table.add_column("Memory Req", style="magenta")
-table.add_column("CPU Req", style="green")
-table.add_column("Bind", style="cyan")
-table.add_column("Port", style="magenta")
+table.add_column("Name", justify="center", style="cyan")
+table.add_column("ID", justify="center", style="magenta")
+table.add_column("Node Name", justify="center", style="green")
+table.add_column("Container Image", justify="center", style="cyan")
+table.add_column("Memory Req", justify="center", style="magenta")
+table.add_column("CPU Req", justify="center", style="green")
+table.add_column("Bind", justify="center", style="cyan")
+table.add_column("Port", justify="center", style="magenta")
 
 console = Console(record=True)
 
@@ -183,7 +183,7 @@ def create_pods():
 
 def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
-    console.log("Create Cluster\n", style="bold green")
+    console.log("---> Start Cluster\n", style="bold green")
     cluster = Cluster(env, 1)  # create cluster with single master node
     time.sleep(0.2)
 
@@ -191,7 +191,7 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
 
     pod_queue = create_pods()  # get the queue containing the pods
 
-    console.log("Start Kubescheduler\n", style="bold green")
+    console.log("\n---> Start Kubescheduler\n", style="bold green")
 
     # Keep doing this indefinitely (whilst the program's running)
     while True:

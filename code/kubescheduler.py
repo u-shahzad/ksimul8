@@ -56,6 +56,10 @@ class Kubescheduler(Predicates, Priorites):
                         time.sleep(0.1)
                         pass
                     else:
+                        console.log(
+                            ":thumbs_down: Pod Fits Resources for node: {}".format(node.name),
+                            style="cyan")
+                        time.sleep(0.1)
                         break
 
                 if pod.plugins._PodFitsHostPorts:
@@ -65,6 +69,9 @@ class Kubescheduler(Predicates, Priorites):
                         time.sleep(0.1)
                         pass
                     else:
+                        console.log(":thumbs_down: Pod Fits Host Ports: {}".format(node.name),
+                            style="cyan")
+                        time.sleep(0.1)
                         break
 
                 if pod.plugins._PodFitsHost:
@@ -74,6 +81,9 @@ class Kubescheduler(Predicates, Priorites):
                         time.sleep(0.1)
                         pass
                     else:
+                        console.log(":thumbs_down: Pod Fits Host: {}".format(node.name),
+                            style="cyan")
+                        time.sleep(0.1)
                         break
 
                 if pod.plugins._MatchNodeSelector:
@@ -83,6 +93,9 @@ class Kubescheduler(Predicates, Priorites):
                         time.sleep(0.1)
                         pass
                     else:
+                        console.log(":thumbs_down: Node Selector Matched: {}".format(node.name),
+                            style="cyan")
+                        time.sleep(0.1)
                         break
 
                 self.feasible_nodes.append(node)
@@ -119,13 +132,13 @@ class Kubescheduler(Predicates, Priorites):
 
         table = Table(title="Node Description")
 
-        table.add_column("Name", style="cyan")
-        table.add_column("ID", style="magenta")
-        table.add_column("Num of Pods", style="green")
-        table.add_column("Memory", style="cyan")
-        table.add_column("CPU", style="magenta")
-        table.add_column("Score", style="green")
-        table.add_column("Port", style="cyan")
+        table.add_column("Name", justify="center", style="cyan")
+        table.add_column("ID", justify="center", style="magenta")
+        table.add_column("Num of Pods", justify="center", style="green")
+        table.add_column("Memory", justify="center", style="cyan")
+        table.add_column("CPU", justify="center", style="magenta")
+        table.add_column("Score", justify="center", style="green")
+        table.add_column("Port", justify="center", style="cyan")
 
         for node in nodes:
             # print(node.serialize(), '\n')
