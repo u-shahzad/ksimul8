@@ -5,7 +5,7 @@ from rich.table import Table
 from rich.traceback import install
 import logging
 import time
-install()
+install()  # creates a better readable traceback
 
 
 console = Console()
@@ -29,91 +29,59 @@ class Kubescheduler(Predicates, Priorites):
         self.feasible_nodes = []  # list of feasible nodes for the pod
         self.selected_node = None  # final selected node for the pod
 
-    def node_score(self, node):
-        return node.score  # returns the score of the node
+        self.predicate_methods = [self.podFitsHostPorts, self.podFitsHost,
+                                self.podFitsResources, self.matchNodeSelector,
+                                self.noVolumeZoneConflict, self.noDiskConflict,
+                                self.maxCSIVolumeCount, self.podToleratesNodeTaints,
+                                self.checkVolumeBinding]
 
     def scheduling_cycle(self, cluster, pod):
         nodes = cluster.getList()  # list of all the nodes
         lrp_check = False  # check for LeastRequestedPriority
         mrp_check = False  # check for MostRequestedPriority
+        global node_passed
+        node_passed = False
 
         for node in nodes:
 
             '''
-            This loop will only execute a single iteration and finds
-            the number of feasible node(s) for the pod by applying a
-            set of predicates.
+            This loop finds the number of feasible node(s) for the pod by
+            applying a set of predicates.
             '''
-            while (True):
+            for pred in range(len(pod.plugin.predicate_list)):
 
-                # Applying Predicates
-
-                if pod.plugins._PodFitsResources:
-                    if (self.podFitsResources(node, pod)):
+                # checks whether plugin is ON/OFF
+                if pod.plugin.predicate_list[pred]:
+                    if (self.predicate_methods[pred](node, pod)):
                         console.log(
-                            ":thumbs_up: Pod Fits Resources for node: {}".format(node.name),
+                            ":thumbs_up: {}: {}".format(
+                            pod.plugin.predicates_name[pred], node.name),
                             style="cyan")
-                        time.sleep(0.1)
-                        pass
+                        node_passed = True
+
                     else:
                         console.log(
-                            ":thumbs_down: Pod Fits Resources for node: {}".format(node.name),
+                            ":thumbs_down: {}: {}".format(
+                            pod.plugin.predicates_name[pred], node.name),
                             style="cyan")
-                        time.sleep(0.1)
+                        node_passed = False
                         break
 
-                if pod.plugins._PodFitsHostPorts:
-                    if (self.podFitsHostPorts(node, pod)):
-                        console.log(":thumbs_up: Pod Fits Host Ports: {}".format(node.name),
-                            style="cyan")
-                        time.sleep(0.1)
-                        pass
-                    else:
-                        console.log(":thumbs_down: Pod Fits Host Ports: {}".format(node.name),
-                            style="cyan")
-                        time.sleep(0.1)
-                        break
-
-                if pod.plugins._PodFitsHost:
-                    if (self.podFitsHost(node, pod)):
-                        console.log(":thumbs_up: Pod Fits Host: {}".format(node.name),
-                            style="cyan")
-                        time.sleep(0.1)
-                        pass
-                    else:
-                        console.log(":thumbs_down: Pod Fits Host: {}".format(node.name),
-                            style="cyan")
-                        time.sleep(0.1)
-                        break
-
-                if pod.plugins._MatchNodeSelector:
-                    if (self.matchNodeSelector(node, pod)):
-                        console.log(":thumbs_up: Node Selector Matched: {}".format(node.name),
-                            style="cyan")
-                        time.sleep(0.1)
-                        pass
-                    else:
-                        console.log(":thumbs_down: Node Selector Matched: {}".format(node.name),
-                            style="cyan")
-                        time.sleep(0.1)
-                        break
-
+            if node_passed:
                 self.feasible_nodes.append(node)
-                break
 
             # Applying Priorites
 
-            if pod.plugins._ImageLocalityPriority:
+            if pod.plugin.priorites_list[9]:
                 if (self.imageLocalityPriority(node, pod)):
                     node.score += 1
                     console.log(":cd: Image locality Found", style="cyan")
-                    time.sleep(0.1)
 
-            if pod.plugins._LeastRequestedPriority and lrp_check is False:
+            if pod.plugin.priorites_list[2] and lrp_check is False:
                 self.leastRequestedPriority(cluster)
                 lrp_check = True
 
-            if pod.plugins._MostRequestedPriority and mrp_check is False:
+            if pod.plugin.priorites_list[3] and mrp_check is False:
                 self.mostRequestedPriority(cluster)
                 mrp_check = True
 
@@ -121,15 +89,18 @@ class Kubescheduler(Predicates, Priorites):
         if len(self.feasible_nodes) > 0:
 
             # sort the nodes on the basis of their score
-            self.feasible_nodes.sort(key=self.node_score)
+            self.feasible_nodes.sort(key=lambda x: x.score, reverse=True)
 
             # select the node with the highest score
-            self.selected_node = self.feasible_nodes[-1]
+            self.selected_node = self.feasible_nodes[0]
             self.selected_node.add_pod(pod)  # add the pod to the selected node
             pod.node = self.selected_node  # bind pod to the selected node
 
             logging.info(' \"Selected Node: {}\"\n'.format(
                             self.selected_node.name))
+
+        else:
+            pod.nodeName = ''  # no feasible node for pod
 
         table = Table(title="Node Description")
 
@@ -147,8 +118,8 @@ class Kubescheduler(Predicates, Priorites):
             table.add_row(node.name, str(node.id), str(node.num_of_pods),
                             str(node.memory), str(node.cpu), str(node.score),
                             str(node.port))
-            time.sleep(0.1)
 
             node.score = 0  # clear the node score for the next pod scheduling
 
         console.log(table)
+

@@ -1,21 +1,21 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: frontend
+  name: Pod1
   labels:
     name: multischeduler-example
 spec:
-  schedulerName: custom-scheduler
+  schedulerName: default-scheduler
   containers:
-  - name: app
-    image: images.my-company.frontend/app:v4
+  - name: appv2
+    image: celery
     resources:
       requests:
         memory: "125Mi"
         cpu: "250m"
       limits:
         memory: "32Mi"
-        cpu: "60m"
+        cpu: "64m"
   - name: log-aggregator
     image: images.my-company.example/log-aggregator:v6
     resources:
@@ -24,8 +24,8 @@ spec:
         cpu: "250m"
       limits:
         memory: "32Mi"
-        cpu: "60m"
-  nodeName: n2
+        cpu: "64m"
+  nodeName: n4
   nodeSelector:
     disktype: ''
-  port: 90
+  port: 80

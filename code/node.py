@@ -53,10 +53,10 @@ class Node:
         return self.pod_list  # returns the list of pods in the node
 
     def serialize(self):
-        return {"name": self.name,
+        return {"Name": self.name,
                 "ID": self.id,
                 "Num of Pods": self.num_of_pods,
-                "Memory": self.memory,
-                "CPU": self.cpu,
+                "Available Memory": self.memory,
+                "Available CPU": self.cpu,
                 "Score": self.score,
                 "Port": self.port}

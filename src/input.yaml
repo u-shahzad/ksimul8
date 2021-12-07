@@ -5,60 +5,52 @@ metadata:
 cluster:
   node:
   - name: 'n1'
-    memory: 3
-    cpu: 5
+    memory: 64
+    cpu: 128
     label: ''
   - name: 'n2'
-    memory: 500
-    cpu: 1060
+    memory: 128
+    cpu: 256
     label: ''
   - name: 'n3'
-    memory: 500
-    cpu: 1060
+    memory: 256
+    cpu: 512
     label: 'ssd'
   - name: 'n4'
-    memory: 500
-    cpu: 1060
+    memory: 512
+    cpu: 1024
     label: ''
   - name: 'n5'
-    memory: 40
-    cpu: 20
+    memory: 1024
+    cpu: 2048
     label: 'ssd'
   - name: 'n6'
-    memory: 20
-    cpu: 10
+    memory: 2048
+    cpu: 4096
     label: ''
 pods:
-  arrivalTime: 5
-  serviceTime: 6
   pod:
-  - name: 'pod101'
-    schedulerName: 'default-scheduler'
-    containerName: 'container101'
-    containerImage: 'nginx'
-    memory: 4
-    cpu: 2
-    plugins: 'FFTFFFFFFFFTFFFFFFTFFF'
-    nodeName: ''
-    nodeSelector: ''
-    port: 80
-  - name: 'pod102'
-    schedulerName: 'default-scheduler'
-    containerName: 'container102'
-    containerImage: 'celery'
-    memory: 4
-    cpu: 2
-    plugins: 'FFTFFFFFFFFFTFFFFFTFFF'
-    nodeName: ''
-    nodeSelector: ''
-    port: 90
-  - name: 'pod103'
-    schedulerName: 'default-scheduler'
-    containerName: 'container103'
-    containerImage: 'img103'
-    memory: 4
-    cpu: 2
-    plugins: 'TFTFFFFFFFFTFFFFFFTFFF'
-    nodeName: ''
-    nodeSelector: ''
-    port: null
+  - name: 'Pod1'
+    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    arrivalTime: 2
+    serviceTime: 3
+  - name: 'Pod2'
+    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    arrivalTime: 4
+    serviceTime: 5
+  - name: 'Pod3'
+    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    arrivalTime: 5
+    serviceTime: 7
+  - name: 'Pod4'
+    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    arrivalTime: 5
+    serviceTime: 4
+  - name: 'pod5'
+    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    arrivalTime: 5
+    serviceTime: 3
+  - name: 'frontend'
+    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    arrivalTime: 5
+    serviceTime: 4

@@ -1,3 +1,6 @@
+import random
+
+
 class Predicates:
 
     '''
@@ -5,9 +8,9 @@ class Predicates:
     combination of items provided by the system that users can apply
     '''
 
-    def __init__(self) -> None:
+    def __init__(self):
 
-        pass
+        name = ''
 
     def podFitsHostPorts(self, node, pod):
         '''
@@ -51,42 +54,42 @@ class Predicates:
         else:
             return False
 
-    def noVolumeZoneConflict():
+    def noVolumeZoneConflict(self, node, pod):
         '''
             Evaluate if the Volumes that a Pod requests are available on the
             Node, given the failure zone restrictions for that storage.
         '''
 
-        pass
+        return random.choice([True,False])
 
-    def noDiskConflict():
+    def noDiskConflict(self, node, pod):
         '''
             Evaluates if a Pod can fit on a Node due to the volumes it
             requests, and those that are already mounted.
         '''
 
-        pass
+        return random.choice([True,False])
 
-    def maxCSIVolumeCount():
+    def maxCSIVolumeCount(self, node, pod):
         '''
             Decides how many CSI volumes should be attached, and whether
             that's over a configured limit.
         '''
 
-        pass
+        return random.choice([True,False])
 
-    def podToleratesNodeTaints():
+    def podToleratesNodeTaints(self, node, pod):
         '''
             checks if a Pod's tolerations can tolerate the Node's taints.
         '''
 
-        pass
+        return random.choice([True,False])
 
-    def checkVolumeBinding():
+    def checkVolumeBinding(self, node, pod):
         '''
             Evaluates if a Pod can fit due to the volumes it requests.
             This applies for both bound and unbound PVCs.
             PV: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
         '''
 
-        pass
+        return random.choice([True,False])

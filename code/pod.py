@@ -12,33 +12,33 @@ class Pod:
 
     id_iter = itertools.count()
 
-    def __init__(self, name, schedulerName, containerName,
-                 containerImage, memory, cpu, plugins, nodeName='',
-                 nodeSelector='', port=None):
+    def __init__(self, name, schedulerName, memory, cpu, plugin, arrivalTime,
+                 serviceTime, containerList, nodeName='', nodeSelector='',
+                 port=None):
 
         self.name = name  # name of the pod
         self.id = next(Pod.id_iter)  # assigns unique id for each pod
         self.schedulerName = schedulerName  # name of scheduler that pod wants
         self.nodeName = nodeName  # name of node that the pod is bind to
-        self.containerName = containerName  # name of container running in pod
-        self.containerImage = containerImage  # image of the container
         self.memory = memory  # RAM requirements of the pod
         self.cpu = cpu  # CPU requirements of the pod
         self.is_bind = False  # initially pod is not bind
-        self.plugins = plugins  # set of predicates and priorites for the pod
+        self.plugin = plugin  # set of predicates and priorites for the pod
         self.nodeSelector = nodeSelector  # a field to check node label
         self.port = port  # network port requirement of the pod
         self.node = None  # the node object which pod will bind in the future
+        self.arrivalTime = arrivalTime
+        self.serviceTime = serviceTime
+        self.container_list = containerList
 
     def serialize(self):
 
-        return {"name": self.name,
-                "podID": self.id,
+        return {"Name": self.name,
+                "Pod ID": self.id,
                 "nodeName": self.nodeName,
-                "containerImage": self.containerImage,
-                "memoryRequirement": self.memory,
-                "cpuRequirement": self.cpu,
-                "is_Bind": self.is_bind,
+                "Memory Requirement": self.memory,
+                "CPU Requirement": self.cpu,
+                "is_bind": self.is_bind,
                 "Port": self.port}
 
     def getID(self):

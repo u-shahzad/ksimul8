@@ -55,7 +55,7 @@ class Priorites:
 
         console.log(":arrow_lower_left:  Least used node {}".format(self.least_used_node.name),
                         style="cyan")
-        time.sleep(0.1)
+
         self.least_used_node.score += 1
 
     def mostRequestedPriority(self, cluster):
@@ -71,16 +71,16 @@ class Priorites:
         for node in nodes:
             node_list.append(node.num_of_pods)
 
-        node_list.sort()
+        node_list.sort(reverse=True)
 
         for node in nodes:
-            if node.num_of_pods == node_list[-1]:
+            if node.num_of_pods == node_list[0]:
                 self.most_used_node = node
                 break
 
         console.log(":arrow_upper_right:  Most used node {}".format(self.most_used_node.name),
                         style="cyan")
-        time.sleep(0.1)
+
         self.most_used_node.score += 1
 
     def requestedToCapacityRatioPriority():
@@ -132,10 +132,10 @@ class Priorites:
         '''
 
         for pod_list in node.pod_list:
-            if pod_list.id == pod.id:
-                pass
-            elif pod_list.containerImage == pod.containerImage:
-                return True
+            for container_list in pod.container_list:
+                for pod_container_list in pod_list.container_list:
+                    if container_list.image == pod_container_list.image:
+                        return True
         return False
 
     def serviceSpreadingPriority():

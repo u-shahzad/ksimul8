@@ -16,27 +16,23 @@ class Plugin:
                 ):
 
         # Predicates
-        self._PodFitsHostPorts = _pfhp
-        self._PodFitsHost = _pfh
-        self._PodFitsResources = _pfr
-        self._MatchNodeSelector = _mns
-        self._NoVolumeZoneConflict = _nvzc
-        self._NoDiskConflict = _ndc
-        self._MaxCSIVolumeCount = _mCSIvc
-        self._PodToleratesNodeTaints = _ptnt
-        self._CheckVolumeBinding = _cvb
+        self.predicate_list = [_pfhp, _pfh, _pfr, _mns, _nvzc, _ndc, _mCSIvc,
+                                _ptnt, _cvb]
+
+        self.predicates_name = ['PodFitsHostPorts', 'PodFitsHost',
+                                'PodFitsResources', 'MatchNodeSelector',
+                                'NoVolumeZoneConflict', 'noDiskConflict',
+                                'MaxCSIVolumeCount', 'PodToleratesNodeTaints',
+                                'CheckVolumeBinding']
 
         # Priorites
-        self._SelectorSpreadPriority = ssp
-        self._InterPodAffinityPriority = ipap
-        self._LeastRequestedPriority = lrp
-        self._MostRequestedPriority = mrp
-        self._RequestedToCapacityRatioPriority = rtcrp
-        self._BalancedResourceAllocation = bra
-        self._NodePreferAvoidPodsPriority = npapp
-        self._NodeAffinityPriority = nap
-        self._TaintTolerationPriority = ttp
-        self._ImageLocalityPriority = ilp
-        self._ServiceSpreadingPriority = ssp_
-        self._EqualPriority = ep
-        self._EvenPodsSpreadPriority = epsp
+        self.priorites_list = [ssp, ipap, lrp, mrp, rtcrp, bra, npapp, nap,
+                                ttp, ilp, ssp_, ep, epsp]
+
+        self.priorites_name = ['SelectorSpreadPriority',
+        'InterPodAffinityPriority', 'LeastRequestedPriority',
+        'MostRequestedPriority', 'RequestedToCapacityRatioPriority',
+        'BalancedResourceAllocation', 'NodePreferAvoidPodsPriority',
+        'NodeAffinityPriority', 'TaintTolerationPriority',
+        'ImageLocalityPriority', 'ServiceSpreadingPriority',
+        'EqualPriority', 'EvenPodsSpreadPriority']

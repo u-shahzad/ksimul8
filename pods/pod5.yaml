@@ -28,3 +28,4 @@ spec:
   nodeName: n3
   nodeSelector:
     disktype: ssd
+  port: 2000

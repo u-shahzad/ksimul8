@@ -30,11 +30,12 @@ table = Table(title="Pod Description")
 table.add_column("Name", justify="center", style="cyan")
 table.add_column("ID", justify="center", style="magenta")
 table.add_column("Node Name", justify="center", style="green")
-table.add_column("Container Image", justify="center", style="cyan")
-table.add_column("Memory Req", justify="center", style="magenta")
-table.add_column("CPU Req", justify="center", style="green")
-table.add_column("Bind", justify="center", style="cyan")
-table.add_column("Port", justify="center", style="magenta")
+table.add_column("Memory Req", justify="center", style="cyan")
+table.add_column("CPU Req", justify="center", style="magenta")
+table.add_column("Bind", justify="center", style="green")
+table.add_column("Port", justify="center", style="cyan")
+table.add_column("Arrival Time", justify="center", style="magenta")
+table.add_column("Service Time", justify="center", style="green")
 
 console = Console(record=True)
 
@@ -71,8 +72,6 @@ def create_nodes(cluster):
                     # create node and add it in the cluster
                     cluster.append(Node(name, memory, cpu, label))
 
-                    time.sleep(0.2)
-
             except yaml.YAMLError as exc:
 
                 print(exc)
@@ -82,11 +81,10 @@ def create_pods():
 
     console.log("===> Creating Pods ", style="bold blue")
 
-    plug1 = Plugin(
-                    True, True, False, False, False, False, False, False, False,
-                    False, False, True, False, False, False, False, False,
-                    False, True, False, False, False
-                    )
+    pod_name_list = []
+    plugin_list = []
+    arrivalTime_list = []
+    serviceTime_list = []
 
     pod_queue = queue.Queue()  # pod arrives in a FIFO queue
 
@@ -99,83 +97,17 @@ def create_pods():
 
                 for i in track(range(len(input['pods']['pod']))):
 
-                    name = input['pods']['pod'][i]['name']
-                    schedulerName = input['pods']['pod'][i]['schedulerName']
-                    containerName = input['pods']['pod'][i]['containerName']
-                    containerImage = input['pods']['pod'][i]['containerImage']
-                    plugin_check = input['pods']['pod'][i]['plugins']
-                    nodeName = input['pods']['pod'][i]['nodeName']
-                    nodeSelector = input['pods']['pod'][i]['nodeSelector']
-                    memory = input['pods']['pod'][i]['memory']
-                    cpu = input['pods']['pod'][i]['cpu']
-                    port = input['pods']['pod'][i]['port']
-
-                    plug = Plugin()
-
-                    if plugin_check[0] == 'T':
-                        plug._PodFitsHostPorts = True
-                    if plugin_check[1] == 'T':
-                        plug._PodFitsHost = True
-                    if plugin_check[2] == 'T':
-                        plug._PodFitsResources = True
-                    if plugin_check[3] == 'T':
-                        plug._MatchNodeSelector = True
-                    if plugin_check[4] == 'T':
-                        plug._NoVolumeZoneConflict = True
-                    if plugin_check[5] == 'T':
-                        plug._NoDiskConflict = True
-                    if plugin_check[6] == 'T':
-                        plug._MaxCSIVolumeCount = True
-                    if plugin_check[7] == 'T':
-                        plug._PodToleratesNodeTaints = True
-                    if plugin_check[8] == 'T':
-                        plug._CheckVolumeBinding = True
-                    if plugin_check[9] == 'T':
-                        plug._SelectorSpreadPriority = True
-                    if plugin_check[10] == 'T':
-                        plug._InterPodAffinityPriority = True
-                    if plugin_check[11] == 'T':
-                        plug._LeastRequestedPriority = True
-                    if plugin_check[12] == 'T':
-                        plug._MostRequestedPriority = True
-                    if plugin_check[13] == 'T':
-                        plug._RequestedToCapacityRatioPriority = True
-                    if plugin_check[14] == 'T':
-                        plug._BalancedResourceAllocation = True
-                    if plugin_check[15] == 'T':
-                        plug._NodePreferAvoidPodsPriority = True
-                    if plugin_check[16] == 'T':
-                        plug._NodeAffinityPriority = True
-                    if plugin_check[17] == 'T':
-                        plug._TaintTolerationPriority = True
-                    if plugin_check[18] == 'T':
-                        plug._ImageLocalityPriority = True
-                    if plugin_check[19] == 'T':
-                        plug._ServiceSpreadingPriority = True
-                    if plugin_check[20] == 'T':
-                        plug._EqualPriority = True
-                    if plugin_check[21] == 'T':
-                        plug._EvenPodsSpreadPriority = True
-
-                    # create pod and add it in the queue
-                    pod_queue.put(Pod(
-                                    name, schedulerName, containerName,
-                                    containerImage, memory, cpu, plug,
-                                    nodeName, nodeSelector, port
-                                    ))
-
-                    time.sleep(0.2)
+                    pod_name_list.append(input['pods']['pod'][i]['name'])
+                    plugin_list.append(input['pods']['pod'][i]['plugin'])
+                    arrivalTime_list.append(input['pods']['pod'][i]['arrivalTime'])
+                    serviceTime_list.append(input['pods']['pod'][i]['serviceTime'])
 
             except yaml.YAMLError as exc:
 
                 print(exc)
 
-    pod_queue.put(Pod("Pod1", "default-scheduler", "appv2", "celery", 10, 16, plug, 'n4'))
-    pod_queue.put(Pod("Pod2", "Kubescheduler", "appv1.1", "nginx", 2, 4, plug, 'n1'))
-    pod_queue.put(Pod("Pod3", "Kubescheduler", "app", "celery", 20, 44, plug1, 'n4', '', 55))
-
     pod_file = PodFile()
-    pod_file.load(pod_queue)
+    pod_file.load(pod_queue, pod_name_list, plugin_list, arrivalTime_list, serviceTime_list)
 
     return pod_queue
 
@@ -188,11 +120,10 @@ def drop_pod(pod):
     console.log(pod.serialize())
 
 
-def cluster_generator(env, inter_arrival_time, ideal_service_time):
+def cluster_generator(env):
 
     console.log("---> Start Cluster\n", style="bold green")
     cluster = Cluster(env, 1)  # create cluster with single master node
-    time.sleep(0.2)
 
     create_nodes(cluster)  # calling function to create nodes
 
@@ -208,12 +139,13 @@ def cluster_generator(env, inter_arrival_time, ideal_service_time):
             Tell the simulation enviroment to run the
             kubescheduler activity generator
             '''
+            pod = pod_queue.get()
             env.process(kubescheduler_generator(
-                                                env, ideal_service_time,
-                                                cluster, pod_queue.get()))
+                                                env, pod.serviceTime,
+                                                cluster, pod))
 
         # Calculate the time until the next pod arrives
-        t = random.expovariate(1.0 / inter_arrival_time)
+        t = random.expovariate(1.0 / pod.arrivalTime)
 
         '''
         Tell the simulation to freeze this function in place
@@ -251,10 +183,9 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         if pod.is_bind is True:
             logging.info(' Pod {} assigned a node at {} time unit \n'.format(
                             pod.id, pod_assigned_node_time))
-        table.add_row(pod.name, str(pod.id), pod.nodeName, pod.containerImage,
-                        str(pod.memory), str(pod.cpu),
-                        str(pod.is_bind), str(pod.port))
-        time.sleep(0.1)
+        table.add_row(pod.name, str(pod.id), pod.nodeName,
+                        str(pod.memory), str(pod.cpu), str(pod.is_bind),
+                        str(pod.port), str(pod.arrivalTime), str(pod.serviceTime))
 
         console.log(table)
 
@@ -285,8 +216,6 @@ def main():
             try:
                 input = yaml.safe_load(stream)
 
-                arrival_time = input['pods']['arrivalTime']
-                service_time = input['pods']['serviceTime']
                 simulation_time = input['metadata']['simulationTime']
 
             except yaml.YAMLError as exc:
@@ -295,16 +224,12 @@ def main():
 
     env = simpy.Environment()  # create a simulation environment
 
-    inter_arrival_time = arrival_time
-    ideal_service_time = service_time
-
     MARKDOWN = """# Start Simulation"""
     md = Markdown(MARKDOWN)
     console.log(md, style="bold magenta")
-    time.sleep(0.2)
 
     # Start the cluster
-    env.process(cluster_generator(env, inter_arrival_time, ideal_service_time))
+    env.process(cluster_generator(env))
 
     '''
     Set the simulation to run for 60 time units (representing minutes in
