@@ -3,6 +3,7 @@ import yaml, glob, os
 from pod import Pod
 from plugin import Plugin
 from container import Container
+import numpy as np
 
 
 class PodFile:
@@ -24,12 +25,6 @@ class PodFile:
 
                     if name in pod_name:
 
-                        plug = Plugin(
-                                False, False, True, False, False, False, False, False, False,
-                                False, False, True, False, False, False, False, False,
-                                False, True, False, False, False
-                                )
-
                         schedulerName = pod_file['spec']['schedulerName']
                         nodeName = pod_file['spec']['nodeName']
                         nodeSelector = pod_file['spec']['nodeSelector']['disktype']
@@ -47,6 +42,12 @@ class PodFile:
                         pod_memory = sum(map(lambda x: x.memory, container_list))
                         pod_cpu = sum(map(lambda x: x.cpu, container_list))
 
+                        plug = Plugin()
+
+                        plugin_list = self.num_to_list(plugin[file])
+                        plug.predicate_list = plugin_list[:9]
+                        plug.priorites_list = plugin_list[9:]
+
                         pod_queue.put(Pod(name, schedulerName, pod_memory, pod_cpu, plug,
                                     arrivalTime[file], serviceTime[file], container_list,
                                     nodeName, nodeSelector, port))
@@ -54,3 +55,13 @@ class PodFile:
 
                 except yaml.YAMLError as exc:
                     print(exc)
+
+    def num_to_list(self, num):
+
+        res = [int(x) for x in str(num)]
+        res_array = np.array(res)
+        bool_array = res_array>0
+        bool_list = bool_array.tolist()
+        del bool_list[0]
+
+        return bool_list

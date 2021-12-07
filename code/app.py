@@ -46,7 +46,7 @@ logging.basicConfig(filename='test.log', level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 
-def create_nodes(cluster):
+def create_nodes(env, cluster):
 
     '''
     This function creates all working nodes described in the input file.
@@ -75,6 +75,8 @@ def create_nodes(cluster):
             except yaml.YAMLError as exc:
 
                 print(exc)
+
+    # yield env.timeout(20)
 
 
 def create_pods():
@@ -125,7 +127,7 @@ def cluster_generator(env):
     console.log("---> Start Cluster\n", style="bold green")
     cluster = Cluster(env, 1)  # create cluster with single master node
 
-    create_nodes(cluster)  # calling function to create nodes
+    create_nodes(env, cluster)  # calling function to create nodes
 
     pod_queue = create_pods()  # get the queue containing the pods
 

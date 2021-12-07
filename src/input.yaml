@@ -1,7 +1,7 @@
 apiVersion: v1
 metadata:
   name: InputFile
-  simulationTime: 90
+  simulationTime: 120
 cluster:
   node:
   - name: 'n1'
@@ -31,26 +31,26 @@ cluster:
 pods:
   pod:
   - name: 'Pod1'
-    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    plugin: 10010000000010000001000
     arrivalTime: 2
     serviceTime: 3
   - name: 'Pod2'
-    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    plugin: 10010000000010000001000
     arrivalTime: 4
     serviceTime: 5
   - name: 'Pod3'
-    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    plugin: 10010000000010000001000
     arrivalTime: 5
     serviceTime: 7
   - name: 'Pod4'
-    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    plugin: 10010000000010000001000
     arrivalTime: 5
     serviceTime: 4
   - name: 'pod5'
-    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    plugin: 10010000000010000001000
     arrivalTime: 5
     serviceTime: 3
   - name: 'frontend'
-    plugin: 'FFTFFFFFFFFTFFFFFFTFFF'
+    plugin: 10010000000010000001000
     arrivalTime: 5
     serviceTime: 4
