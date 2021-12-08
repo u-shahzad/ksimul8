@@ -8,9 +8,8 @@ class Predicates:
     combination of items provided by the system that users can apply
     '''
 
-    def __init__(self):
-
-        name = ''
+    def __init__(self) -> None:
+        pass
 
     def podFitsHostPorts(self, node, pod):
         '''

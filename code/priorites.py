@@ -40,7 +40,7 @@ class Priorites:
         thosePods use, the lower the ranking this policy will give.
         '''
 
-        nodes = cluster.getList()
+        nodes = cluster.get_node_list()
         node_list = []
 
         for node in nodes:
@@ -65,7 +65,7 @@ class Priorites:
         your overall set of workloads.
         '''
 
-        nodes = cluster.getList()
+        nodes = cluster.get_node_list()
         node_list = []
 
         for node in nodes:

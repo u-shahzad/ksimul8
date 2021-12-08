@@ -48,10 +48,6 @@ class Node:
         if pod.port is not None:
             self.port.remove(pod.port)
 
-
-    def getList(self):
-        return self.pod_list  # returns the list of pods in the node
-
     def serialize(self):
         return {"Name": self.name,
                 "ID": self.id,

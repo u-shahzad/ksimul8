@@ -36,7 +36,7 @@ class Kubescheduler(Predicates, Priorites):
                                 self.checkVolumeBinding]
 
     def scheduling_cycle(self, cluster, pod):
-        nodes = cluster.getList()  # list of all the nodes
+        nodes = cluster.get_node_list()  # list of all the nodes
         lrp_check = False  # check for LeastRequestedPriority
         mrp_check = False  # check for MostRequestedPriority
         global node_passed

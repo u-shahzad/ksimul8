@@ -29,6 +29,7 @@ class Pod:
         self.node = None  # the node object which pod will bind in the future
         self.arrivalTime = arrivalTime
         self.serviceTime = serviceTime
+        self.ttl = None
         self.container_list = containerList
 
     def serialize(self):
@@ -40,6 +41,3 @@ class Pod:
                 "CPU Requirement": self.cpu,
                 "is_bind": self.is_bind,
                 "Port": self.port}
-
-    def getID(self):
-        return self.id  # returns pod id

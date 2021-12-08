@@ -1,0 +1,120 @@
+@startuml
+class Cluster {
+ -master_node
+ -node_list []
+ -add_node(node)
+ -get_node_list()
+}
+
+class Container {
+ -name
+ -image
+ -memory
+ -cpu
+}
+
+class Pod {
+ -id
+ -name
+ -schedulerName
+ -nodeName
+ -memory
+ -cpu
+ -is_bind
+ -plugin
+ -nodeSelector
+ -port
+ -node
+ -arrivalTime
+ -serviceTime
+ -ttl
+ -container_list
+ -serialize()
+}
+
+class Queue {
+ -put(Pod)
+ -get()
+}
+note left of Queue::put
+  methods to insert and remove pods
+end note
+
+class Kubescheduler {
+ -name
+ -feasible_nodes []
+ -selected_node
+ -predicate_methods [methods..]
+ -scheduling_cycle()
+}
+
+class Priorities {
+ -least_used_node
+ -most_used_node
+ -selectorSpreadPriority()
+ -interPodAffinityPriority()
+ -leastRequestedPriority()
+ -mostRequestedPriority()
+ -requestedToCapacityRatioPriority()
+ -balancedResourceAllocation()
+ -nodePreferAvoidPodsPriority()
+ -nodeAffinityPriority()
+ -taintTolerationPriority()
+ -imageLocalityPriority()
+ -serviceSpreadingPriority()
+ -equalPriority()
+ -evenPodsSpreadPriority()
+}
+
+class Predicates {
+ -podFitsHostPorts()
+ -podFitsHost()
+ -podFitsResources()
+ -matchNodeSelector()
+ -noVolumeZoneConflict()
+ -noDiskConflict()
+ -maxCSIVolumeCount()
+ -podToleratesNodeTaints()
+ -checkVolumeBinding()
+}
+
+class Node {
+ -id
+ -name
+ -num_of_pods
+ -memory
+ -cpu
+ -score
+ -port []
+ -label
+ -pod_list []
+ -add_pod()
+ -remove_pod()
+ -serialize()
+}
+note left of Node::num_of_pods
+  e.g. how many pods are running already
+end note
+
+note right of Cluster::master_node
+  1. create pods
+  2. create nodes
+  3. push pods in queue
+  4. start scheduler
+  5. pop pod
+  6. apply P&P
+  7. select node
+  8. bind pod with node
+  9. pop next pod
+end note
+
+Queue ^-- Pod
+Pod --^ Container
+Cluster --^ Queue
+Kubescheduler --^ Queue
+Kubescheduler --^ Priorities
+Kubescheduler --^ Predicates
+Cluster -- Kubescheduler
+Cluster *-- Node
+Node --^ Pod
+@enduml

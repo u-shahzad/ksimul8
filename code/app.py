@@ -70,7 +70,7 @@ def create_nodes(env, cluster):
                     label = input['cluster']['node'][i]['label']
 
                     # create node and add it in the cluster
-                    cluster.append(Node(name, memory, cpu, label))
+                    cluster.add_node(Node(name, memory, cpu, label))
 
             except yaml.YAMLError as exc:
 
