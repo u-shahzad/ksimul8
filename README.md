@@ -36,8 +36,8 @@ inside the project's root.
 
 Before running the project we need to provide the following input files to run the application:
 
-- Pod deployment files (YAML) in the *pods* directory
-- Input file (YAML) in the *src* directory
+- Pod deployment files (YAML) in the **pods** directory
+- Input file (YAML) in the **src** directory
 
 Some of the files are already provided for demo purpose.
 
@@ -47,7 +47,7 @@ The input file contains an item named *plugin* in the pods section which is used
 
 For example: `plugin: 10110000000010000001000`
 
-The plugin is basically a *23 bit* combination where the first bit is always 1 because YAML dosen't support binary number system.
+The plugin is basically a **23 bit** combination where the first bit is always 1 because YAML dosen't support binary number system.
 
 The rest of the bits can be set according to the following order of predicates and priorites:
 
@@ -79,4 +79,4 @@ Later you can use the following command:
 
 **Reason:** the application creates a test.log file at every execution, and
 the bash file (run.sh) removes the log file to obtain fresh result everytime.
-It may cause a *file not found error* if we execute *bash run.sh* command first time, or if we delete the test.log file manually.
+It may cause a **file not found error** if we execute *bash run.sh* command first time, or if we delete the test.log file manually.
