@@ -1,22 +1,23 @@
-# Kubernetes Scheduler Simpy
-This is the source code of the kubernetes default scheduler (kubescheduler) simulated application, created using simpy.
+# Kubernetes Scheduler Simulation
+
+This is the source code of a simulation application for the kubernetes default scheduler "kubescheduler", created using python simulation package 'simpy'.
+
 A thesis project of *University of Pisa* and *CNR-ISTI*.
 
 ## Team
 
-#### Supervisor
+### Supervisor
 
 |Name and Surname            | Email                       |
 |----------------------------|-----------------------------|
 |Dr. Patrizio Dazzi, Ph.D.   |patrizio.dazzi@isti.cnr.it   |
 |Dr. Emanuele Carlini, Ph.D. |emanuele.carlini@isti.cnr.it |
 
-#### Student Details
+### Student Details
 
 |Name and Surname  | Email                         |
 |------------------|-------------------------------|
 |Usman Shahzad     |u.shahzad1@studenti.unipi.it   |
-
 
 ## Instructions
 
@@ -33,19 +34,20 @@ inside the project's root.
 
 ### Input Files
 
-Before running the project we need to provide some input files to run the application:
-- Pod deployment files (YAML) in the pods directory
-- Input file (YAML) in the src directory with the following format
+Before running the project we need to provide the following input files to run the application:
+
+- Pod deployment files (YAML) in the *pods* directory
+- Input file (YAML) in the *src* directory
 
 Some of the files are already provided for demo purpose.
 
 ### Plugins
 
-The input file contains an item in the pods section which is used to provide a custom plugin for each pod:
+The input file contains an item named *plugin* in the pods section which is used to provide a custom plugin for each pod.
 
-`plugin: 10110000000010000001000`
+For example: `plugin: 10110000000010000001000`
 
-The plugin is a combination of 23 bits where the first bit is always 1 (because YAML dosen't support binary number system).
+The plugin is basically a *23 bit* combination where the first bit is always 1 because YAML dosen't support binary number system.
 
 The rest of the bits can be set according to the following order of predicates and priorites:
 
@@ -65,8 +67,7 @@ The rest of the bits can be set according to the following order of predicates a
 |                         |EqualPriority                   |
 |                         |EvenPodsSpreadPriority          |
 
-
-### Run the project
+### Run the Project
 
 To run the project for first time execute the following command:
 
@@ -76,7 +77,6 @@ Later you can use the following command:
 
 `bash run.sh`
 
-Reason: the application creates a test.log file at every execution, and
+**Reason:** the application creates a test.log file at every execution, and
 the bash file (run.sh) removes the log file to obtain fresh result everytime.
-It may cause a **file not found error** if we execute this command first time,
-or if we delete the test.log file manually.
+It may cause a *file not found error* if we execute *bash run.sh* command first time, or if we delete the test.log file manually.
