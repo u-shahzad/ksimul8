@@ -47,7 +47,7 @@ The input file contains an item named *plugin* in the pods section which is used
 
 For example: `plugin: 10110000000010000001000`
 
-The plugin is basically a **23 bit** combination where the first bit is always 1 because YAML dosen't support binary number system.
+The plugin is basically a **23 bit** combination where the first bit is always **1** because it is an integer value.
 
 The rest of the bits can be set according to the following order of predicates and priorites:
 
