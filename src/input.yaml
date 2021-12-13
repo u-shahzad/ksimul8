@@ -7,11 +7,11 @@ cluster:
   - name: 'n1'
     memory: 64
     cpu: 128
-    label: null
+    label: ''
   - name: 'n2'
     memory: 128
     cpu: 256
-    label: null
+    label: ''
   - name: 'n3'
     memory: 256
     cpu: 512
@@ -19,7 +19,7 @@ cluster:
   - name: 'n4'
     memory: 512
     cpu: 1024
-    label: null
+    label: ''
   - name: 'n5'
     memory: 1024
     cpu: 2048
@@ -27,7 +27,7 @@ cluster:
   - name: 'n6'
     memory: 2048
     cpu: 4096
-    label: null
+    label: ''
 pods:
   pod:
   - name: 'Pod1'
