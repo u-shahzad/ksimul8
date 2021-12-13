@@ -37,6 +37,16 @@ table.add_column("Port", justify="center", style="cyan")
 table.add_column("Arrival Time", justify="center", style="magenta")
 table.add_column("Service Time", justify="center", style="green")
 
+node_table = Table(title="Final Node Description")
+
+node_table.add_column("Name", justify="center", style="cyan")
+node_table.add_column("ID", justify="center", style="magenta")
+node_table.add_column("Num of Pods", justify="center", style="green")
+node_table.add_column("Memory", justify="center", style="cyan")
+node_table.add_column("CPU", justify="center", style="magenta")
+node_table.add_column("Score", justify="center", style="green")
+node_table.add_column("Port", justify="center", style="cyan")
+
 console = Console(record=True)
 
 '''
@@ -47,6 +57,7 @@ logging.basicConfig(filename='test.log', level=logging.DEBUG,
 
 _NODES = []
 _PODS = []
+_POD_QUEUE = queue.Queue()  # pod arrives in a FIFO queue
 
 
 def cluster_generator(env):
@@ -56,22 +67,27 @@ def cluster_generator(env):
 
     env.process(create_nodes(env, cluster))  # calling function to create nodes
 
-    pod_queue = create_pods()  # get the queue containing the pods
+    create_pods()  # get the queue containing the pods
 
     console.log("\n---> Start Kubescheduler\n", style="bold green")
 
     # Keep doing this indefinitely (whilst the program's running)
     while True:
 
-        if (pod_queue.empty() is False):
+        if (_POD_QUEUE.empty() is False):
             '''
             Tell the simulation enviroment to run the
             kubescheduler activity generator
             '''
-            pod = pod_queue.get()
-            env.process(kubescheduler_generator(
-                                                env, pod.serviceTime,
-                                                cluster, pod))
+            pod = _POD_QUEUE.get()
+
+            pod.arrivalTime = env.now
+            logging.info(' {} entered queue at {} seconds \n'.format(
+                    pod.name, pod.arrivalTime))
+
+            env.process(kubescheduler_generator(env, cluster, pod))
+
+            env.process(drop_pod(env, cluster, pod))
 
         # Calculate the time until the next pod arrives
         # t = random.expovariate(1.0 / pod.arrivalRate)
@@ -117,19 +133,14 @@ def create_nodes(env, cluster):
 
                     print(exc)
 
-        yield env.timeout(2)
+        yield env.timeout(5)
 
 
 def create_pods():
 
     console.log("===> Creating Pods ", style="bold blue")
 
-    pod_name = []
-    plugin = []
-    arrivalRate = []
-    serviceTime = []
-
-    pod_queue = queue.Queue()  # pod arrives in a FIFO queue
+    pod_data = {}
 
     for filename in glob.glob('src/*.yaml'):
 
@@ -140,10 +151,12 @@ def create_pods():
 
                 for i in track(range(len(input['pods']['pod']))):
 
-                    pod_name.append(input['pods']['pod'][i]['name'])
-                    plugin.append(input['pods']['pod'][i]['plugin'])
-                    arrivalRate.append(input['pods']['pod'][i]['arrivalRate'])
-                    serviceTime.append(input['pods']['pod'][i]['serviceTime'])
+                    pod_name = (input['pods']['pod'][i]['name'])
+                    plugin  = (input['pods']['pod'][i]['plugin'])
+                    arrivalRate = (input['pods']['pod'][i]['arrivalRate'])
+                    serviceTime = (input['pods']['pod'][i]['serviceTime'])
+
+                    pod_data[pod_name] = [plugin, arrivalRate, serviceTime]
 
             except yaml.YAMLError as exc:
 
@@ -151,26 +164,25 @@ def create_pods():
 
     createPod = CreatePod()
     #plugin.reverse()
-    pods = createPod.create(pod_queue, pod_name, plugin, arrivalRate, serviceTime)
+    pods = createPod.create(_POD_QUEUE, pod_data)
     for pod in pods:
         _PODS.append(pod)
 
-    return pod_queue
+
+def drop_pod(env, cluster, pod):
+    with cluster.master_node.request() as req:
+        yield req
+        console.log("\n===> Removing {}\n".format(pod.name),
+                    style="bold red")
+
+        pod.node.remove_pod(pod)
+        pod.node = None
+
+        logging.info(' {} removed at {} seconds \n'.format(pod.name, env.now))
+        yield env.timeout(pod.serviceTime)
 
 
-def drop_pod(pod):
-    console.log("\n===> Removing Pod\n", style="bold red")
-    pod.node.remove_pod(pod)
-    console.log(pod.node.serialize())
-    pod.node = None
-    console.log(pod.serialize())
-
-
-def kubescheduler_generator(env, ideal_service_time, cluster, pod):
-    pod_arrival_time = env.now
-    pod.arrivalTime = pod_arrival_time
-    logging.info(' Pod {} entered queue at {} time unit \n'.format(
-                    pod.id, pod_arrival_time))
+def kubescheduler_generator(env, cluster, pod):
 
     with cluster.master_node.request() as req:
         '''
@@ -192,15 +204,18 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         kubescheduler.scheduling_cycle(cluster, pod)
 
         # scheduling_time = random.expovariate(1.0 / ideal_service_time)
+        pod_assigned_node_time = env.now
+
+        if pod.is_bind is True:
+            logging.info(' {} assigned a node at {} seconds \n'.format(
+                            pod.name, pod_assigned_node_time))
 
         table.add_row(pod.name, str(pod.id), pod.nodeName,
                         str(pod.memory), str(pod.cpu), str(pod.is_bind),
-                        str(pod.port), str(pod.arrivalTime), str(ideal_service_time))
+                        str(pod.port), str(pod.arrivalRate),
+                        str(pod.serviceTime))
 
         console.log(table)
-
-        if (pod.name == 'pod5' and pod.is_bind):
-            drop_pod(pod)
 
         '''
         Tell the simulation to freeze this function in place until that
@@ -208,12 +223,7 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         node in use and unavailable elsewhere, as we are still in
         the 'with' statement
         '''
-        yield env.timeout(ideal_service_time)
-        pod_assigned_node_time = env.now
-
-        if pod.is_bind is True:
-            logging.info(' Pod {} assigned a node at {} time unit \n'.format(
-                            pod.id, pod_assigned_node_time))
+        yield env.timeout(10)
 
 
 def main():
@@ -251,15 +261,19 @@ def main():
 
     MARKDOWN = """# End Result"""
     console.log(Markdown(MARKDOWN), style="bold magenta")
-
-    # for pod in _PODS:
-    #     print(pod.serialize())
     
-    # for node in _NODES:
-    #     print(node.serialize())
+    for node in _NODES:
+        node_table.add_row(node.name, str(node.id), str(node.num_of_pods),
+                            str(node.memory), str(node.cpu), str(node.score),
+                            str(node.port))
+    console.log(node_table)
 
-    # print("nodes len: {}".format(len(_NODES)))
-    # print("pods len: {}".format(len(_PODS)))
+    for pod in _PODS:
+        table.add_row(pod.name, str(pod.id), pod.nodeName,
+                        str(pod.memory), str(pod.cpu), str(pod.is_bind),
+                        str(pod.port), str(pod.arrivalRate),
+                        str(pod.serviceTime))
+    console.log(table)
 
     console.save_html("demo.html")
 

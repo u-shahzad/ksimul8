@@ -1,9 +1,10 @@
-from typing import Container
-import yaml, glob, os
 from pod import Pod
 from plugin import Plugin
 from container import Container
 import numpy as np
+import yaml
+import glob
+import os
 
 
 class CreatePod:
@@ -11,19 +12,17 @@ class CreatePod:
     def __init__(self):
         self.pod_list = []
 
-    def create(self, pod_queue, pod_name, plugin, arrivalRate, serviceTime):
-        file = 0
+    def create(self, pod_queue, pod_data):
         container_list = []
 
         for filename in glob.glob('pods/*.yaml'):
             with open(os.path.join(os.getcwd(), filename), 'r') as stream:
                 try:
-                    # print (yaml.dump(yaml.safe_load(stream), default_flow_style=False))
                     pod_file = yaml.safe_load(stream)
 
                     name = pod_file['metadata']['name']
 
-                    if name in pod_name:
+                    if name in pod_data:
 
                         schedulerName = pod_file['spec']['schedulerName']
                         nodeName = pod_file['spec']['nodeName']
@@ -44,18 +43,16 @@ class CreatePod:
 
                         plug = Plugin()
 
-                        plugin_list = self.num_to_list(plugin[file])
+                        plugin_list = self.num_to_list(pod_data[name][0])
                         plug.predicate_list = plugin_list[:9]
                         plug.priorites_list = plugin_list[9:]
 
                         pod = Pod(name, schedulerName, pod_memory, pod_cpu,
-                                plug, arrivalRate[file], serviceTime[file],
+                                plug, pod_data[name][1], pod_data[name][2],
                                 container_list, nodeName, nodeSelector, port)
                         pod_queue.put(pod)
                         self.pod_list.append(pod)
                         container_list.clear()
-
-                    file += 1
 
                 except yaml.YAMLError as exc:
                     print(exc)

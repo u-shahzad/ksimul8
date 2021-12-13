@@ -1,9 +1,7 @@
-from rich import style
 from rich.console import Console
-import time
-
 
 console = Console()
+
 
 class Priorites:
 
@@ -53,8 +51,8 @@ class Priorites:
                 self.least_used_node = node
                 break
 
-        console.log(":arrow_lower_left:  Least used node {}".format(self.least_used_node.name),
-                        style="cyan")
+        console.log(":arrow_lower_left:  Least used node {}".format(
+                            self.least_used_node.name), style="cyan")
 
         self.least_used_node.score += 1
 
@@ -78,8 +76,8 @@ class Priorites:
                 self.most_used_node = node
                 break
 
-        console.log(":arrow_upper_right:  Most used node {}".format(self.most_used_node.name),
-                        style="cyan")
+        console.log(":arrow_upper_right:  Most used node {}".format(
+                            self.most_used_node.name), style="cyan")
 
         self.most_used_node.score += 1
 

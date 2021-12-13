@@ -59,7 +59,7 @@ class Predicates:
             Node, given the failure zone restrictions for that storage.
         '''
 
-        return random.choice([True,False])
+        return random.choice([True, False])
 
     def noDiskConflict(self, node, pod):
         '''
@@ -67,7 +67,7 @@ class Predicates:
             requests, and those that are already mounted.
         '''
 
-        return random.choice([True,False])
+        return random.choice([True, False])
 
     def maxCSIVolumeCount(self, node, pod):
         '''
@@ -75,14 +75,14 @@ class Predicates:
             that's over a configured limit.
         '''
 
-        return random.choice([True,False])
+        return random.choice([True, False])
 
     def podToleratesNodeTaints(self, node, pod):
         '''
             checks if a Pod's tolerations can tolerate the Node's taints.
         '''
 
-        return random.choice([True,False])
+        return random.choice([True, False])
 
     def checkVolumeBinding(self, node, pod):
         '''
@@ -91,4 +91,4 @@ class Predicates:
             PV: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
         '''
 
-        return random.choice([True,False])
+        return random.choice([True, False])

@@ -16,8 +16,8 @@ class Plugin:
                 ):
 
         # Predicates
-        self.predicate_list = [_pfhp, _pfh, _pfr, _mns, _nvzc, _ndc, _mCSIvc,
-                                _ptnt, _cvb]
+        self.predicate_list = [_pfhp, _pfh, _pfr, _mns, _nvzc, _ndc,
+                               _mCSIvc, _ptnt, _cvb]
 
         self.predicates_name = ['PodFitsHostPorts', 'PodFitsHost',
                                 'PodFitsResources', 'MatchNodeSelector',
@@ -27,12 +27,18 @@ class Plugin:
 
         # Priorites
         self.priorites_list = [ssp, ipap, lrp, mrp, rtcrp, bra, npapp, nap,
-                                ttp, ilp, ssp_, ep, epsp]
+                               ttp, ilp, ssp_, ep, epsp]
 
         self.priorites_name = ['SelectorSpreadPriority',
-        'InterPodAffinityPriority', 'LeastRequestedPriority',
-        'MostRequestedPriority', 'RequestedToCapacityRatioPriority',
-        'BalancedResourceAllocation', 'NodePreferAvoidPodsPriority',
-        'NodeAffinityPriority', 'TaintTolerationPriority',
-        'ImageLocalityPriority', 'ServiceSpreadingPriority',
-        'EqualPriority', 'EvenPodsSpreadPriority']
+                               'InterPodAffinityPriority',
+                               'LeastRequestedPriority',
+                               'MostRequestedPriority',
+                               'RequestedToCapacityRatioPriority',
+                               'BalancedResourceAllocation',
+                               'NodePreferAvoidPodsPriority',
+                               'NodeAffinityPriority',
+                               'TaintTolerationPriority',
+                               'ImageLocalityPriority',
+                               'ServiceSpreadingPriority',
+                               'EqualPriority',
+                               'EvenPodsSpreadPriority']

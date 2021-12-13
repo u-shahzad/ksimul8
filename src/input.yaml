@@ -1,17 +1,17 @@
 apiVersion: v1
 metadata:
   name: InputFile
-  simulationTime: 120
+  simulationTime: 180
 cluster:
   node:
   - name: 'n1'
     memory: 64
     cpu: 128
-    label: ''
+    label: null
   - name: 'n2'
     memory: 128
     cpu: 256
-    label: ''
+    label: null
   - name: 'n3'
     memory: 256
     cpu: 512
@@ -19,7 +19,7 @@ cluster:
   - name: 'n4'
     memory: 512
     cpu: 1024
-    label: ''
+    label: null
   - name: 'n5'
     memory: 1024
     cpu: 2048
@@ -27,30 +27,30 @@ cluster:
   - name: 'n6'
     memory: 2048
     cpu: 4096
-    label: ''
+    label: null
 pods:
   pod:
   - name: 'Pod1'
     plugin: 10010000000010000001000
     arrivalRate: 5
-    serviceTime: 10
+    serviceTime: 15
   - name: 'Pod2'
     plugin: 10010000000010000001000
     arrivalRate: 5
-    serviceTime: 10
+    serviceTime: 15
   - name: 'Pod3'
     plugin: 10010000000010000001000
     arrivalRate: 5
-    serviceTime: 10
+    serviceTime: 15
   - name: 'Pod4'
     plugin: 10010000000010000001000
     arrivalRate: 5
-    serviceTime: 10
+    serviceTime: 15
   - name: 'Pod5'
-    plugin: 10010000000010000001000
+    plugin: 10011000000010000001000
     arrivalRate: 5
-    serviceTime: 10
+    serviceTime: 15
   - name: 'frontend'
     plugin: 10110000000010000001000
     arrivalRate: 5
-    serviceTime: 10
+    serviceTime: 15

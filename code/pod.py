@@ -30,8 +30,7 @@ class Pod:
         self.arrivalRate = arrivalRate
         self.arrivalTime = 0
         self.serviceTime = serviceTime
-        self.ttl = None
-        self.container_list = containerList
+        self.container_list = containerList  # list of containers in the pod
 
     def serialize(self):
 
