@@ -54,14 +54,14 @@ class Kubescheduler(Predicates, Priorites):
                 if pod.plugin.predicate_list[pred]:
                     if (self.predicate_methods[pred](node, pod)):
                         console.log(
-                            ":thumbs_up: {}: {}".format(
+                            ":thumbs_up: {} {}: {}".format(pod.name,
                             pod.plugin.predicates_name[pred], node.name),
                             style="cyan")
                         node_passed = True
 
                     else:
                         console.log(
-                            ":thumbs_down: {}: {}".format(
+                            ":thumbs_down: {} {}: {}".format(pod.name,
                             pod.plugin.predicates_name[pred], node.name),
                             style="cyan")
                         node_passed = False

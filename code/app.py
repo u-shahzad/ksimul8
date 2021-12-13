@@ -6,7 +6,7 @@ from cluster import Cluster
 from pod import Pod
 from node import Node
 from kubescheduler import Kubescheduler
-from podFile import PodFile
+from createPod import CreatePod
 from plugin import Plugin
 from rich.console import Console
 from rich.table import Table
@@ -45,89 +45,16 @@ creates a test.log file which contains the result of the experiment performed.
 logging.basicConfig(filename='test.log', level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
-
-def create_nodes(env, cluster):
-
-    '''
-    This function creates all working nodes described in the input file.
-    '''
-
-    console.log("===> Creating Nodes ", style="bold blue")
-
-    for filename in glob.glob('src/*.yaml'):  # selects on .yaml extention file
-
-        with open(os.path.join(os.getcwd(), filename), 'r') as stream:
-
-            try:
-                input = yaml.safe_load(stream)  # loads the data in input file
-
-                # loop will run till it reach the final node in the list
-                for i in track(range(len(input['cluster']['node']))):
-
-                    name = input['cluster']['node'][i]['name']
-                    memory = input['cluster']['node'][i]['memory']
-                    cpu = input['cluster']['node'][i]['cpu']
-                    label = input['cluster']['node'][i]['label']
-
-                    # create node and add it in the cluster
-                    cluster.add_node(Node(name, memory, cpu, label))
-
-            except yaml.YAMLError as exc:
-
-                print(exc)
-
-    # yield env.timeout(20)
-
-
-def create_pods():
-
-    console.log("===> Creating Pods ", style="bold blue")
-
-    pod_name_list = []
-    plugin_list = []
-    arrivalTime_list = []
-    serviceTime_list = []
-
-    pod_queue = queue.Queue()  # pod arrives in a FIFO queue
-
-    for filename in glob.glob('src/*.yaml'):
-
-        with open(os.path.join(os.getcwd(), filename), 'r') as stream:
-
-            try:
-                input = yaml.safe_load(stream)
-
-                for i in track(range(len(input['pods']['pod']))):
-
-                    pod_name_list.append(input['pods']['pod'][i]['name'])
-                    plugin_list.append(input['pods']['pod'][i]['plugin'])
-                    arrivalTime_list.append(input['pods']['pod'][i]['arrivalTime'])
-                    serviceTime_list.append(input['pods']['pod'][i]['serviceTime'])
-
-            except yaml.YAMLError as exc:
-
-                print(exc)
-
-    pod_file = PodFile()
-    pod_file.load(pod_queue, pod_name_list, plugin_list, arrivalTime_list, serviceTime_list)
-
-    return pod_queue
-
-
-def drop_pod(pod):
-    console.log("\n===> Removing Pod\n", style="bold red")
-    pod.node.remove_pod(pod)
-    console.log(pod.node.serialize())
-    pod.node = None
-    console.log(pod.serialize())
+_NODES = []
+_PODS = []
 
 
 def cluster_generator(env):
 
     console.log("---> Start Cluster\n", style="bold green")
-    cluster = Cluster(env, 1)  # create cluster with single master node
+    cluster = Cluster(env, 1)  # create cluster with single master nodes
 
-    create_nodes(env, cluster)  # calling function to create nodes
+    env.process(create_nodes(env, cluster))  # calling function to create nodes
 
     pod_queue = create_pods()  # get the queue containing the pods
 
@@ -147,7 +74,8 @@ def cluster_generator(env):
                                                 cluster, pod))
 
         # Calculate the time until the next pod arrives
-        t = random.expovariate(1.0 / pod.arrivalTime)
+        # t = random.expovariate(1.0 / pod.arrivalRate)
+        t = pod.arrivalRate
 
         '''
         Tell the simulation to freeze this function in place
@@ -156,8 +84,91 @@ def cluster_generator(env):
         yield env.timeout(t)
 
 
+def create_nodes(env, cluster):
+
+    '''
+    This function creates all working nodes described in the input file.
+    '''
+    with cluster.master_node.request() as req:
+        yield req
+
+        console.log("===> Creating Nodes ", style="bold blue")
+
+        for filename in glob.glob('src/*.yaml'):  # selects on .yaml extention file
+
+            with open(os.path.join(os.getcwd(), filename), 'r') as stream:
+
+                try:
+                    input = yaml.safe_load(stream)  # loads the data in input file
+
+                    # loop will run till it reach the final node in the list
+                    for i in track(range(len(input['cluster']['node']))):
+
+                        name = input['cluster']['node'][i]['name']
+                        memory = input['cluster']['node'][i]['memory']
+                        cpu = input['cluster']['node'][i]['cpu']
+                        label = input['cluster']['node'][i]['label']
+
+                        node = Node(name, memory, cpu, label)
+                        cluster.add_node(node)
+                        _NODES.append(node)
+
+                except yaml.YAMLError as exc:
+
+                    print(exc)
+
+        yield env.timeout(2)
+
+
+def create_pods():
+
+    console.log("===> Creating Pods ", style="bold blue")
+
+    pod_name = []
+    plugin = []
+    arrivalRate = []
+    serviceTime = []
+
+    pod_queue = queue.Queue()  # pod arrives in a FIFO queue
+
+    for filename in glob.glob('src/*.yaml'):
+
+        with open(os.path.join(os.getcwd(), filename), 'r') as stream:
+
+            try:
+                input = yaml.safe_load(stream)
+
+                for i in track(range(len(input['pods']['pod']))):
+
+                    pod_name.append(input['pods']['pod'][i]['name'])
+                    plugin.append(input['pods']['pod'][i]['plugin'])
+                    arrivalRate.append(input['pods']['pod'][i]['arrivalRate'])
+                    serviceTime.append(input['pods']['pod'][i]['serviceTime'])
+
+            except yaml.YAMLError as exc:
+
+                print(exc)
+
+    createPod = CreatePod()
+    #plugin.reverse()
+    pods = createPod.create(pod_queue, pod_name, plugin, arrivalRate, serviceTime)
+    for pod in pods:
+        _PODS.append(pod)
+
+    return pod_queue
+
+
+def drop_pod(pod):
+    console.log("\n===> Removing Pod\n", style="bold red")
+    pod.node.remove_pod(pod)
+    console.log(pod.node.serialize())
+    pod.node = None
+    console.log(pod.serialize())
+
+
 def kubescheduler_generator(env, ideal_service_time, cluster, pod):
     pod_arrival_time = env.now
+    pod.arrivalTime = pod_arrival_time
     logging.info(' Pod {} entered queue at {} time unit \n'.format(
                     pod.id, pod_arrival_time))
 
@@ -180,21 +191,16 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         # Start kubescheduler
         kubescheduler.scheduling_cycle(cluster, pod)
 
-        pod_assigned_node_time = env.now
+        # scheduling_time = random.expovariate(1.0 / ideal_service_time)
 
-        if pod.is_bind is True:
-            logging.info(' Pod {} assigned a node at {} time unit \n'.format(
-                            pod.id, pod_assigned_node_time))
         table.add_row(pod.name, str(pod.id), pod.nodeName,
                         str(pod.memory), str(pod.cpu), str(pod.is_bind),
-                        str(pod.port), str(pod.arrivalTime), str(pod.serviceTime))
+                        str(pod.port), str(pod.arrivalTime), str(ideal_service_time))
 
         console.log(table)
 
-        scheduling_time = random.expovariate(1.0 / ideal_service_time)
-
-        # if (pod.name == 'pod5'):
-        #     drop_pod(pod)
+        if (pod.name == 'pod5' and pod.is_bind):
+            drop_pod(pod)
 
         '''
         Tell the simulation to freeze this function in place until that
@@ -202,7 +208,12 @@ def kubescheduler_generator(env, ideal_service_time, cluster, pod):
         node in use and unavailable elsewhere, as we are still in
         the 'with' statement
         '''
-        yield env.timeout(scheduling_time)
+        yield env.timeout(ideal_service_time)
+        pod_assigned_node_time = env.now
+
+        if pod.is_bind is True:
+            logging.info(' Pod {} assigned a node at {} time unit \n'.format(
+                            pod.id, pod_assigned_node_time))
 
 
 def main():
@@ -227,8 +238,7 @@ def main():
     env = simpy.Environment()  # create a simulation environment
 
     MARKDOWN = """# Start Simulation"""
-    md = Markdown(MARKDOWN)
-    console.log(md, style="bold magenta")
+    console.log(Markdown(MARKDOWN), style="bold magenta")
 
     # Start the cluster
     env.process(cluster_generator(env))
@@ -238,6 +248,18 @@ def main():
     our model, so for one hour of simulated time)
     '''
     env.run(until=simulation_time)
+
+    MARKDOWN = """# End Result"""
+    console.log(Markdown(MARKDOWN), style="bold magenta")
+
+    # for pod in _PODS:
+    #     print(pod.serialize())
+    
+    # for node in _NODES:
+    #     print(node.serialize())
+
+    # print("nodes len: {}".format(len(_NODES)))
+    # print("pods len: {}".format(len(_PODS)))
 
     console.save_html("demo.html")
 

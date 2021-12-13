@@ -7,11 +7,11 @@ cluster:
   - name: 'n1'
     memory: 64
     cpu: 128
-    label: ''
+    label: null
   - name: 'n2'
     memory: 128
     cpu: 256
-    label: ''
+    label: null
   - name: 'n3'
     memory: 256
     cpu: 512
@@ -19,7 +19,7 @@ cluster:
   - name: 'n4'
     memory: 512
     cpu: 1024
-    label: ''
+    label: null
   - name: 'n5'
     memory: 1024
     cpu: 2048
@@ -27,30 +27,30 @@ cluster:
   - name: 'n6'
     memory: 2048
     cpu: 4096
-    label: ''
+    label: null
 pods:
   pod:
   - name: 'Pod1'
     plugin: 10010000000010000001000
-    arrivalTime: 2
-    serviceTime: 3
+    arrivalRate: 5
+    serviceTime: 10
   - name: 'Pod2'
     plugin: 10010000000010000001000
-    arrivalTime: 4
-    serviceTime: 5
+    arrivalRate: 5
+    serviceTime: 10
   - name: 'Pod3'
     plugin: 10010000000010000001000
-    arrivalTime: 5
-    serviceTime: 7
+    arrivalRate: 5
+    serviceTime: 10
   - name: 'Pod4'
     plugin: 10010000000010000001000
-    arrivalTime: 5
-    serviceTime: 4
-  - name: 'pod5'
+    arrivalRate: 5
+    serviceTime: 10
+  - name: 'Pod5'
     plugin: 10010000000010000001000
-    arrivalTime: 5
-    serviceTime: 3
+    arrivalRate: 5
+    serviceTime: 10
   - name: 'frontend'
-    plugin: 10010000000010000001000
-    arrivalTime: 5
-    serviceTime: 4
+    plugin: 10110000000010000001000
+    arrivalRate: 5
+    serviceTime: 10

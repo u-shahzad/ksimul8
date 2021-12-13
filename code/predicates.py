@@ -48,7 +48,7 @@ class Predicates:
             Checks if a Pod's Node Selector matches the Node's label(s).
         '''
 
-        if node.label == pod.nodeSelector:
+        if node.label is not None and node.label == pod.nodeSelector:
             return True
         else:
             return False

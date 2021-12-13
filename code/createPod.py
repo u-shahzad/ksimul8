@@ -6,12 +6,12 @@ from container import Container
 import numpy as np
 
 
-class PodFile:
+class CreatePod:
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self):
+        self.pod_list = []
 
-    def load(self, pod_queue, pod_name, plugin, arrivalTime, serviceTime):
+    def create(self, pod_queue, pod_name, plugin, arrivalRate, serviceTime):
         file = 0
         container_list = []
 
@@ -48,20 +48,26 @@ class PodFile:
                         plug.predicate_list = plugin_list[:9]
                         plug.priorites_list = plugin_list[9:]
 
-                        pod_queue.put(Pod(name, schedulerName, pod_memory, pod_cpu, plug,
-                                    arrivalTime[file], serviceTime[file], container_list,
-                                    nodeName, nodeSelector, port))
+                        pod = Pod(name, schedulerName, pod_memory, pod_cpu,
+                                plug, arrivalRate[file], serviceTime[file],
+                                container_list, nodeName, nodeSelector, port)
+                        pod_queue.put(pod)
+                        self.pod_list.append(pod)
+                        container_list.clear()
+
                     file += 1
 
                 except yaml.YAMLError as exc:
                     print(exc)
 
+        return self.pod_list
+
     def num_to_list(self, num):
 
-        res = [int(x) for x in str(num)]
-        res_array = np.array(res)
-        bool_array = res_array>0
-        bool_list = bool_array.tolist()
-        del bool_list[0]
+        res = [int(x) for x in str(num)]  # create list of num (0's and 1's)
+        res_array = np.array(res)  # convert list to numpy array
+        bool_array = res_array>0  # convert array to boolean array
+        bool_list = bool_array.tolist()  # convert boolean array to list
+        del bool_list[0]  # delete first bit
 
         return bool_list
