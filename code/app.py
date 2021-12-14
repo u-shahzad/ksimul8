@@ -1,27 +1,24 @@
 #!/usr/bin/env python
 
-from rich import style, table
+from rich import table
 from rich import console
 from cluster import Cluster
-from pod import Pod
 from node import Node
 from kubescheduler import Kubescheduler
 from createPod import CreatePod
-from plugin import Plugin
 from rich.console import Console
 from rich.table import Table
 from rich.traceback import install
 from rich.markdown import Markdown
 from rich.progress import track
+from random import randint
 import simpy
-import random
 import queue
 import logging
 import yaml
 import glob
 import os
 import time
-import asyncio
 install()  # creates a better readable traceback
 
 
@@ -55,8 +52,8 @@ creates a test.log file which contains the result of the experiment performed.
 logging.basicConfig(filename='test.log', level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
-_NODES = []
-_PODS = []
+_NODES = []  # contains list of all the working nodes in the cluster
+_PODS = []  # contains list of all the pods created
 _POD_QUEUE = queue.Queue()  # pod arrives in a FIFO queue
 
 
@@ -65,29 +62,37 @@ def cluster_generator(env):
     console.log("---> Start Cluster\n", style="bold green")
     cluster = Cluster(env, 1)  # create cluster with single master nodes
 
-    env.process(create_nodes(env, cluster))  # calling function to create nodes
+    '''
+    Tell the simulation enviroment to run the
+    create nodes activity generator
+    '''
+    env.process(create_nodes_generator(env, cluster))  # calling function to create nodes
 
-    create_pods()  # get the queue containing the pods
-
-    console.log("\n---> Start Kubescheduler\n", style="bold green")
+    create_pods()  # create pods and add them in a FIFO queue
 
     # Keep doing this indefinitely (whilst the program's running)
     while True:
 
+        # if the queue containing pods is not empty
         if (_POD_QUEUE.empty() is False):
-            '''
-            Tell the simulation enviroment to run the
-            kubescheduler activity generator
-            '''
-            pod = _POD_QUEUE.get()
+            
+            pod = _POD_QUEUE.get()  # pop the pod from the queue
 
             pod.arrivalTime = env.now
             logging.info(' {} entered queue at {} seconds \n'.format(
                     pod.name, pod.arrivalTime))
 
+            '''
+            Tell the simulation enviroment to run the
+            kubescheduler activity generator
+            '''
             env.process(kubescheduler_generator(env, cluster, pod))
 
-            env.process(drop_pod(env, cluster, pod))
+            '''
+            Tell the simulation enviroment to run the
+            drop pod activity generator
+            '''
+            env.process(drop_pod_generator(env, cluster, pod))
 
         # Calculate the time until the next pod arrives
         # t = random.expovariate(1.0 / pod.arrivalRate)
@@ -100,7 +105,7 @@ def cluster_generator(env):
         yield env.timeout(t)
 
 
-def create_nodes(env, cluster):
+def create_nodes_generator(env, cluster):
 
     '''
     This function creates all working nodes described in the input file.
@@ -124,6 +129,7 @@ def create_nodes(env, cluster):
                         memory = input['cluster']['node'][i]['memory']
                         cpu = input['cluster']['node'][i]['cpu']
                         label = input['cluster']['node'][i]['label']
+                        creationTime = input['cluster']['creationTime']
 
                         node = Node(name, memory, cpu, label)
                         cluster.add_node(node)
@@ -133,14 +139,14 @@ def create_nodes(env, cluster):
 
                     print(exc)
 
-        yield env.timeout(5)
+        yield env.timeout(creationTime)
 
 
 def create_pods():
 
     console.log("===> Creating Pods ", style="bold blue")
 
-    pod_data = {}
+    pod_data = {}  # contains pod info described in the input file
 
     for filename in glob.glob('src/*.yaml'):
 
@@ -163,23 +169,31 @@ def create_pods():
                 print(exc)
 
     createPod = CreatePod()
-    #plugin.reverse()
+
     pods = createPod.create(_POD_QUEUE, pod_data)
+
     for pod in pods:
         _PODS.append(pod)
 
 
-def drop_pod(env, cluster, pod):
+def drop_pod_generator(env, cluster, pod):
     with cluster.master_node.request() as req:
         yield req
-        console.log("\n===> Removing {}\n".format(pod.name),
-                    style="bold red")
 
-        pod.node.remove_pod(pod)
-        pod.node = None
+        if pod.is_bind:
+            console.log("\n===> Removing {}\n".format(pod.name),
+                        style="bold red")
 
-        logging.info(' {} removed at {} seconds \n'.format(pod.name, env.now))
-        yield env.timeout(pod.serviceTime)
+            pod.node.remove_pod(pod)
+            pod.node = None
+
+            logging.info(' {} removed at {} seconds \n'.format(pod.name, env.now))
+            yield env.timeout(pod.serviceTime)
+
+        else:
+            console.log("\n===> {} not bind\n".format(pod.name),
+                        style="bold red")
+            yield env.timeout(0)
 
 
 def kubescheduler_generator(env, cluster, pod):
@@ -198,12 +212,13 @@ def kubescheduler_generator(env, cluster, pod):
         the pod was queuing.
         '''
 
+        console.log("\n---> Run Kubescheduler for {}\n".format(
+                    pod.name), style="bold green")
         kubescheduler = Kubescheduler()
 
         # Start kubescheduler
         kubescheduler.scheduling_cycle(cluster, pod)
 
-        # scheduling_time = random.expovariate(1.0 / ideal_service_time)
         pod_assigned_node_time = env.now
 
         if pod.is_bind is True:
@@ -217,13 +232,14 @@ def kubescheduler_generator(env, cluster, pod):
 
         console.log(table)
 
+        scheduling_time = randint(5, 10)
         '''
         Tell the simulation to freeze this function in place until that
         sampled life time has elapsed (which is also keeping the master
         node in use and unavailable elsewhere, as we are still in
         the 'with' statement
         '''
-        yield env.timeout(10)
+        yield env.timeout(scheduling_time)
 
 
 def main():

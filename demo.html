@@ -22,27 +22,30 @@ body {
 <html>
 <body>
     <code>
-        <pre style="font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span class="r1">[20:18:57] </span><span class="r2">╔════════════════════════════════════════════════════════════════════════════╗</span> <span class="r3">app.py:251</span>
+        <pre style="font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span class="r1">[12:21:40] </span><span class="r2">╔════════════════════════════════════════════════════════════════════════════╗</span> <span class="r3">app.py:267</span>
            <span class="r2">║                              Start Simulation                              ║</span>           
            <span class="r2">╚════════════════════════════════════════════════════════════════════════════╝</span>           
-<span class="r1">           </span><span class="r4">---&gt; Start Cluster                                                             </span> <span class="r3">app.py:65</span>
+<span class="r1">           </span><span class="r4">---&gt; Start Cluster                                                             </span> <span class="r3">app.py:62</span>
            <span class="r4">                                                                               </span>          
-<span class="r1">           </span><span class="r5">===&gt; Creating Pods                                                            </span> <span class="r3">app.py:141</span>
-<span class="r1">           </span><span class="r4">                                                                               </span> <span class="r3">app.py:72</span>
-           <span class="r4">---&gt; Start Kubescheduler                                                       </span>          
-           <span class="r4">                                                                               </span>          
-<span class="r1">           </span><span class="r5">===&gt; Creating Nodes                                                           </span> <span class="r3">app.py:111</span>
-<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:218</span>
+<span class="r1">           </span><span class="r5">===&gt; Creating Pods                                                            </span> <span class="r3">app.py:147</span>
+<span class="r1">           </span><span class="r5">===&gt; Creating Nodes                                                           </span> <span class="r3">app.py:116</span>
+<span class="r1">[12:21:41] </span><span class="r4">                                                                              </span> <span class="r3">app.py:215</span>
+           <span class="r4">---&gt; Run Kubescheduler for frontend                                           </span>           
+           <span class="r4">                                                                              </span>           
+<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:233</span>
            ┏━━━━━━━━━┳━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━┓           
            ┃<span class="r7">  Name   </span>┃<span class="r7"> ID </span>┃<span class="r7">  Node   </span>┃<span class="r7"> Memory  </span>┃<span class="r7">  CPU   </span>┃<span class="r7"> Bind </span>┃<span class="r7"> Port </span>┃<span class="r7"> Arrival </span>┃<span class="r7"> Servi… </span>┃           
            ┃         ┃    ┃<span class="r7">  Name   </span>┃<span class="r7">   Req   </span>┃<span class="r7">  Req   </span>┃      ┃      ┃<span class="r7">  Time   </span>┃<span class="r7">  Time  </span>┃           
            ┡━━━━━━━━━╇━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━╇━━━━━━╇━━━━━━━━━╇━━━━━━━━┩           
            │<span class="r8"> fronte… </span>│<span class="r9"> 0  </span>│<span class="r10">   n2    </span>│<span class="r8">   64    </span>│<span class="r9">  120   </span>│<span class="r10"> True </span>│<span class="r8">  90  </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            └─────────┴────┴─────────┴─────────┴────────┴──────┴──────┴─────────┴────────┘           
-<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:175</span>
+<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:184</span>
            <span class="r11">===&gt; Removing frontend                                                        </span>           
            <span class="r11">                                                                              </span>           
-<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:218</span>
+<span class="r1">           </span><span class="r4">                                                                              </span> <span class="r3">app.py:215</span>
+           <span class="r4">---&gt; Run Kubescheduler for Pod5                                               </span>           
+           <span class="r4">                                                                              </span>           
+<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:233</span>
            ┏━━━━━━━━━┳━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━┓           
            ┃<span class="r7">  Name   </span>┃<span class="r7"> ID </span>┃<span class="r7">  Node   </span>┃<span class="r7"> Memory  </span>┃<span class="r7">  CPU   </span>┃<span class="r7"> Bind </span>┃<span class="r7"> Port </span>┃<span class="r7"> Arrival </span>┃<span class="r7"> Servi… </span>┃           
            ┃         ┃    ┃<span class="r7">  Name   </span>┃<span class="r7">   Req   </span>┃<span class="r7">  Req   </span>┃      ┃      ┃<span class="r7">  Time   </span>┃<span class="r7">  Time  </span>┃           
@@ -50,10 +53,13 @@ body {
            │<span class="r8"> fronte… </span>│<span class="r9"> 0  </span>│<span class="r10">   n2    </span>│<span class="r8">   64    </span>│<span class="r9">  120   </span>│<span class="r10"> True </span>│<span class="r8">  90  </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            │<span class="r8">  Pod5   </span>│<span class="r9"> 1  </span>│<span class="r10">   n5    </span>│<span class="r8">   192   </span>│<span class="r9">  700   </span>│<span class="r10"> True </span>│<span class="r8"> 2000 </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            └─────────┴────┴─────────┴─────────┴────────┴──────┴──────┴─────────┴────────┘           
-<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:175</span>
+<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:184</span>
            <span class="r11">===&gt; Removing Pod5                                                            </span>           
            <span class="r11">                                                                              </span>           
-<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:218</span>
+<span class="r1">           </span><span class="r4">                                                                              </span> <span class="r3">app.py:215</span>
+           <span class="r4">---&gt; Run Kubescheduler for Pod2                                               </span>           
+           <span class="r4">                                                                              </span>           
+<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:233</span>
            ┏━━━━━━━━━┳━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━┓           
            ┃<span class="r7">  Name   </span>┃<span class="r7"> ID </span>┃<span class="r7">  Node   </span>┃<span class="r7"> Memory  </span>┃<span class="r7">  CPU   </span>┃<span class="r7"> Bind </span>┃<span class="r7"> Port </span>┃<span class="r7"> Arrival </span>┃<span class="r7"> Servi… </span>┃           
            ┃         ┃    ┃<span class="r7">  Name   </span>┃<span class="r7">   Req   </span>┃<span class="r7">  Req   </span>┃      ┃      ┃<span class="r7">  Time   </span>┃<span class="r7">  Time  </span>┃           
@@ -62,10 +68,13 @@ body {
            │<span class="r8">  Pod5   </span>│<span class="r9"> 1  </span>│<span class="r10">   n5    </span>│<span class="r8">   192   </span>│<span class="r9">  700   </span>│<span class="r10"> True </span>│<span class="r8"> 2000 </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            │<span class="r8">  Pod2   </span>│<span class="r9"> 2  </span>│<span class="r10">   n3    </span>│<span class="r8">   128   </span>│<span class="r9">  378   </span>│<span class="r10"> True </span>│<span class="r8"> 8080 </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            └─────────┴────┴─────────┴─────────┴────────┴──────┴──────┴─────────┴────────┘           
-<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:175</span>
+<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:184</span>
            <span class="r11">===&gt; Removing Pod2                                                            </span>           
            <span class="r11">                                                                              </span>           
-<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:218</span>
+<span class="r1">           </span><span class="r4">                                                                              </span> <span class="r3">app.py:215</span>
+           <span class="r4">---&gt; Run Kubescheduler for Pod3                                               </span>           
+           <span class="r4">                                                                              </span>           
+<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:233</span>
            ┏━━━━━━━━━┳━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━┓           
            ┃<span class="r7">  Name   </span>┃<span class="r7"> ID </span>┃<span class="r7">  Node   </span>┃<span class="r7"> Memory  </span>┃<span class="r7">  CPU   </span>┃<span class="r7"> Bind </span>┃<span class="r7"> Port </span>┃<span class="r7"> Arrival </span>┃<span class="r7"> Servi… </span>┃           
            ┃         ┃    ┃<span class="r7">  Name   </span>┃<span class="r7">   Req   </span>┃<span class="r7">  Req   </span>┃      ┃      ┃<span class="r7">  Time   </span>┃<span class="r7">  Time  </span>┃           
@@ -75,10 +84,13 @@ body {
            │<span class="r8">  Pod2   </span>│<span class="r9"> 2  </span>│<span class="r10">   n3    </span>│<span class="r8">   128   </span>│<span class="r9">  378   </span>│<span class="r10"> True </span>│<span class="r8"> 8080 </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            │<span class="r8">  Pod3   </span>│<span class="r9"> 3  </span>│<span class="r10">   n4    </span>│<span class="r8">   192   </span>│<span class="r9">  628   </span>│<span class="r10"> True </span>│<span class="r8"> 5000 </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            └─────────┴────┴─────────┴─────────┴────────┴──────┴──────┴─────────┴────────┘           
-<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:175</span>
+<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:184</span>
            <span class="r11">===&gt; Removing Pod3                                                            </span>           
            <span class="r11">                                                                              </span>           
-<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:218</span>
+<span class="r1">           </span><span class="r4">                                                                              </span> <span class="r3">app.py:215</span>
+           <span class="r4">---&gt; Run Kubescheduler for Pod4                                               </span>           
+           <span class="r4">                                                                              </span>           
+<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:233</span>
            ┏━━━━━━━━━┳━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━┓           
            ┃<span class="r7">  Name   </span>┃<span class="r7"> ID </span>┃<span class="r7">  Node   </span>┃<span class="r7"> Memory  </span>┃<span class="r7">  CPU   </span>┃<span class="r7"> Bind </span>┃<span class="r7"> Port </span>┃<span class="r7"> Arrival </span>┃<span class="r7"> Servi… </span>┃           
            ┃         ┃    ┃<span class="r7">  Name   </span>┃<span class="r7">   Req   </span>┃<span class="r7">  Req   </span>┃      ┃      ┃<span class="r7">  Time   </span>┃<span class="r7">  Time  </span>┃           
@@ -89,10 +101,13 @@ body {
            │<span class="r8">  Pod3   </span>│<span class="r9"> 3  </span>│<span class="r10">   n4    </span>│<span class="r8">   192   </span>│<span class="r9">  628   </span>│<span class="r10"> True </span>│<span class="r8"> 5000 </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            │<span class="r8">  Pod4   </span>│<span class="r9"> 4  </span>│<span class="r10">   n4    </span>│<span class="r8">   192   </span>│<span class="r9">  628   </span>│<span class="r10"> True </span>│<span class="r8"> None </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            └─────────┴────┴─────────┴─────────┴────────┴──────┴──────┴─────────┴────────┘           
-<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:175</span>
+<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:184</span>
            <span class="r11">===&gt; Removing Pod4                                                            </span>           
            <span class="r11">                                                                              </span>           
-<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:218</span>
+<span class="r1">           </span><span class="r4">                                                                              </span> <span class="r3">app.py:215</span>
+           <span class="r4">---&gt; Run Kubescheduler for Pod1                                               </span>           
+           <span class="r4">                                                                              </span>           
+<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:233</span>
            ┏━━━━━━━━━┳━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━┓           
            ┃<span class="r7">  Name   </span>┃<span class="r7"> ID </span>┃<span class="r7">  Node   </span>┃<span class="r7"> Memory  </span>┃<span class="r7">  CPU   </span>┃<span class="r7"> Bind </span>┃<span class="r7"> Port </span>┃<span class="r7"> Arrival </span>┃<span class="r7"> Servi… </span>┃           
            ┃         ┃    ┃<span class="r7">  Name   </span>┃<span class="r7">   Req   </span>┃<span class="r7">  Req   </span>┃      ┃      ┃<span class="r7">  Time   </span>┃<span class="r7">  Time  </span>┃           
@@ -104,13 +119,13 @@ body {
            │<span class="r8">  Pod4   </span>│<span class="r9"> 4  </span>│<span class="r10">   n4    </span>│<span class="r8">   192   </span>│<span class="r9">  628   </span>│<span class="r10"> True </span>│<span class="r8"> None </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            │<span class="r8">  Pod1   </span>│<span class="r9"> 5  </span>│<span class="r10">   n2    </span>│<span class="r8">   64    </span>│<span class="r9">  128   </span>│<span class="r10"> True </span>│<span class="r8">  80  </span>│<span class="r9">    5    </span>│<span class="r10">   15   </span>│           
            └─────────┴────┴─────────┴─────────┴────────┴──────┴──────┴─────────┴────────┘           
-<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:175</span>
+<span class="r1">           </span><span class="r11">                                                                              </span> <span class="r3">app.py:184</span>
            <span class="r11">===&gt; Removing Pod1                                                            </span>           
            <span class="r11">                                                                              </span>           
-<span class="r1">           </span><span class="r2">╔════════════════════════════════════════════════════════════════════════════╗</span> <span class="r3">app.py:263</span>
+<span class="r1">           </span><span class="r2">╔════════════════════════════════════════════════════════════════════════════╗</span> <span class="r3">app.py:279</span>
            <span class="r2">║                                 End Result                                 ║</span>           
            <span class="r2">╚════════════════════════════════════════════════════════════════════════════╝</span>           
-<span class="r1">           </span><span class="r6">                  Final Node Description                  </span>                     <span class="r3">app.py:269</span>
+<span class="r1">           </span><span class="r6">                  Final Node Description                  </span>                     <span class="r3">app.py:285</span>
            ┏━━━━━━┳━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━━┳━━━━━━┓                               
            ┃<span class="r7"> Name </span>┃<span class="r7"> ID </span>┃<span class="r7"> Num of Pods </span>┃<span class="r7"> Memory </span>┃<span class="r7"> CPU  </span>┃<span class="r7"> Score </span>┃<span class="r7"> Port </span>┃                               
            ┡━━━━━━╇━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━╇━━━━━━━╇━━━━━━┩                               
@@ -121,7 +136,7 @@ body {
            │<span class="r8">  n5  </span>│<span class="r9"> 4  </span>│<span class="r10">      0      </span>│<span class="r8">  1024  </span>│<span class="r9"> 2048 </span>│<span class="r10">   0   </span>│<span class="r8">  []  </span>│                               
            │<span class="r8">  n6  </span>│<span class="r9"> 5  </span>│<span class="r10">      0      </span>│<span class="r8">  2048  </span>│<span class="r9"> 4096 </span>│<span class="r10">   0   </span>│<span class="r8">  []  </span>│                               
            └──────┴────┴─────────────┴────────┴──────┴───────┴──────┘                               
-<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:276</span>
+<span class="r1">           </span><span class="r6">                               Pod Description                                </span> <span class="r3">app.py:292</span>
            ┏━━━━━━━━━┳━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━┓           
            ┃<span class="r7">  Name   </span>┃<span class="r7"> ID </span>┃<span class="r7">  Node  </span>┃<span class="r7"> Memory  </span>┃<span class="r7">  CPU   </span>┃<span class="r7"> Bind  </span>┃<span class="r7"> Port </span>┃<span class="r7"> Arrival </span>┃<span class="r7"> Servi… </span>┃           
            ┃         ┃    ┃<span class="r7">  Name  </span>┃<span class="r7">   Req   </span>┃<span class="r7">  Req   </span>┃       ┃      ┃<span class="r7">  Time   </span>┃<span class="r7">  Time  </span>┃           

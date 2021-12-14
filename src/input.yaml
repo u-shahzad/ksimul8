@@ -3,6 +3,7 @@ metadata:
   name: InputFile
   simulationTime: 180
 cluster:
+  creationTime: 5
   node:
   - name: 'n1'
     memory: 64
