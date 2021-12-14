@@ -32,26 +32,26 @@ cluster:
 pods:
   pod:
   - name: 'Pod1'
-    plugin: 10010000000010000001000
+    plugin: '0010000000001000001000'
     arrivalRate: 5
     serviceTime: 15
   - name: 'Pod2'
-    plugin: 10010000000010000001000
+    plugin: '0010000000010000001000'
     arrivalRate: 5
     serviceTime: 15
   - name: 'Pod3'
-    plugin: 10010000000010000001000
+    plugin: '0010000000010000001000'
     arrivalRate: 5
     serviceTime: 15
   - name: 'Pod4'
-    plugin: 10010000000010000001000
+    plugin: '0010000000010000001000'
     arrivalRate: 5
     serviceTime: 15
   - name: 'Pod5'
-    plugin: 10011000000010000001000
+    plugin: '0011000000010000001000'
     arrivalRate: 5
     serviceTime: 15
   - name: 'frontend'
-    plugin: 10110000000010000001000
+    plugin: '0110000000010000001000'
     arrivalRate: 5
     serviceTime: 15

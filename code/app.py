@@ -19,6 +19,7 @@ import yaml
 import glob
 import os
 import time
+import asyncio
 install()  # creates a better readable traceback
 
 
@@ -92,7 +93,7 @@ def cluster_generator(env):
             Tell the simulation enviroment to run the
             drop pod activity generator
             '''
-            env.process(drop_pod_generator(env, cluster, pod))
+            # env.process(drop_pod_generator(env, cluster, pod))
 
         # Calculate the time until the next pod arrives
         # t = random.expovariate(1.0 / pod.arrivalRate)
@@ -178,6 +179,7 @@ def create_pods():
 
 def drop_pod_generator(env, cluster, pod):
     with cluster.master_node.request() as req:
+    # with r.request() as req:
         yield req
 
         if pod.is_bind:
@@ -227,7 +229,7 @@ def kubescheduler_generator(env, cluster, pod):
 
         table.add_row(pod.name, str(pod.id), pod.nodeName,
                         str(pod.memory), str(pod.cpu), str(pod.is_bind),
-                        str(pod.port), str(pod.arrivalRate),
+                        str(pod.port), str(pod.arrivalTime),
                         str(pod.serviceTime))
 
         console.log(table)
@@ -269,6 +271,10 @@ def main():
     # Start the cluster
     env.process(cluster_generator(env))
 
+    # r = simpy.Resource(env, capacity=1)
+    # for pod in _PODS:
+    #     env.process(drop_pod_generator(env, r, pod))
+
     '''
     Set the simulation to run for 60 time units (representing minutes in
     our model, so for one hour of simulated time)
@@ -278,18 +284,18 @@ def main():
     MARKDOWN = """# End Result"""
     console.log(Markdown(MARKDOWN), style="bold magenta")
     
-    for node in _NODES:
-        node_table.add_row(node.name, str(node.id), str(node.num_of_pods),
-                            str(node.memory), str(node.cpu), str(node.score),
-                            str(node.port))
-    console.log(node_table)
+    # for node in _NODES:
+    #     node_table.add_row(node.name, str(node.id), str(node.num_of_pods),
+    #                         str(node.memory), str(node.cpu), str(node.score),
+    #                         str(node.port))
+    # console.log(node_table)
 
-    for pod in _PODS:
-        table.add_row(pod.name, str(pod.id), pod.nodeName,
-                        str(pod.memory), str(pod.cpu), str(pod.is_bind),
-                        str(pod.port), str(pod.arrivalRate),
-                        str(pod.serviceTime))
-    console.log(table)
+    # for pod in _PODS:
+    #     table.add_row(pod.name, str(pod.id), pod.nodeName,
+    #                     str(pod.memory), str(pod.cpu), str(pod.is_bind),
+    #                     str(pod.port), str(pod.arrivalTime),
+    #                     str(pod.serviceTime))
+    # console.log(table)
 
     console.save_html("demo.html")
 

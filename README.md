@@ -45,27 +45,25 @@ Some of the files are already provided for demo purpose.
 
 The input file contains an item named *plugin* in the pods section which is used to provide a custom plugin for each pod.
 
-For example: `plugin: 10110000000010000001000`
+For example: `plugin: '0110000000010000001000'`
 
-The plugin is basically a **23 bit** combination where the first bit is always **1** because it is an integer value.
+The plugin is basically a **22 bit** combination where the bits can be set to 0 or 1 according to the following order of predicates and priorites:
 
-The rest of the bits can be set according to the following order of predicates and priorites:
-
-|Predicates               | Priorites                      |
-|-------------------------|--------------------------------|
-|PodFitsHostPorts         |SelectorSpreadPriority          |
-|PodFitsHost              |InterPodAffinityPriority        |
-|PodFitsResources         |LeastRequestedPriority          |
-|MatchNodeSelector        |MostRequestedPriority           |
-|NoVolumeZoneConflict     |RequestedToCapacityRatioPriority|
-|noDiskConflict           |BalancedResourceAllocation      |
-|MaxCSIVolumeCount        |NodePreferAvoidPodsPriority     |
-|PodToleratesNodeTaints   |NodeAffinityPriority            |
-|CheckVolumeBinding       |TaintTolerationPriority         |
-|                         |ImageLocalityPriority           |
-|                         |ServiceSpreadingPriority        |
-|                         |EqualPriority                   |
-|                         |EvenPodsSpreadPriority          |
+|Predicates                | Priorites                          |
+|--------------------------|------------------------------------|
+|1. PodFitsHostPorts       |10. SelectorSpreadPriority          |
+|2. PodFitsHost            |11. InterPodAffinityPriority        |
+|3. PodFitsResources       |12. LeastRequestedPriority          |
+|4. MatchNodeSelector      |13. MostRequestedPriority           |
+|5. NoVolumeZoneConflict   |14. RequestedToCapacityRatioPriority|
+|6. noDiskConflict         |15. BalancedResourceAllocation      |
+|7. MaxCSIVolumeCount      |16. NodePreferAvoidPodsPriority     |
+|8. PodToleratesNodeTaints |17. NodeAffinityPriority            |
+|9. CheckVolumeBinding     |18. TaintTolerationPriority         |
+|                          |19. ImageLocalityPriority           |
+|                          |20. ServiceSpreadingPriority        |
+|                          |21. EqualPriority                   |
+|                          |22. EvenPodsSpreadPriority          |
 
 ### Run the Project
 

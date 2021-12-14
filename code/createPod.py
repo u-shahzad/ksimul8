@@ -43,7 +43,8 @@ class CreatePod:
 
                         plug = Plugin()
 
-                        plugin_list = self.num_to_list(pod_data[name][0])
+                        plugin_list = list(map(lambda x: x == "1", pod_data[name][0]))
+
                         plug.predicate_list = plugin_list[:9]
                         plug.priorites_list = plugin_list[9:]
 
@@ -58,13 +59,3 @@ class CreatePod:
                     print(exc)
 
         return self.pod_list
-
-    def num_to_list(self, num):
-
-        res = [int(x) for x in str(num)]  # create list of num (0's and 1's)
-        res_array = np.array(res)  # convert list to numpy array
-        bool_array = res_array>0  # convert array to boolean array
-        bool_list = bool_array.tolist()  # convert boolean array to list
-        del bool_list[0]  # delete first bit
-
-        return bool_list

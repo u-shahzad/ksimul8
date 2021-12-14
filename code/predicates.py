@@ -38,7 +38,7 @@ class Predicates:
             to meet the requirement of the Pod.
         '''
 
-        if node.memory > pod.memory and node.cpu > pod.cpu:
+        if node.memory >= pod.memory and node.cpu >= pod.cpu:
             return True
         else:
             return False
