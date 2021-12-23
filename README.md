@@ -67,6 +67,6 @@ It is a **22 bit** string, where **1 = ON** and **0 = OFF** for the following or
 
 ### Run the Project
 
-To run the project use the following command:
+To run the project execute the following command:
 
-`bash run.sh`
+    `bash run.sh`
