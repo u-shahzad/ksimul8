@@ -19,7 +19,6 @@ import yaml
 import glob
 import os
 import time
-import asyncio
 install()  # creates a better readable traceback
 
 

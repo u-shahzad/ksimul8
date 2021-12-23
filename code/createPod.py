@@ -1,7 +1,6 @@
 from pod import Pod
 from plugin import Plugin
 from container import Container
-import numpy as np
 import yaml
 import glob
 import os
@@ -35,8 +34,9 @@ class CreatePod:
                             memory = int(pod_file['spec']['containers'][i]['resources']['limits']['memory'][:-2])
                             cpu = int(pod_file['spec']['containers'][i]['resources']['limits']['cpu'][:-1])
 
-                            container_list.append(Container(containerName, image,
-                                                    memory, cpu))
+                            container_list.append(Container(containerName,
+                                                            image, memory,
+                                                            cpu))
 
                         pod_memory = sum(map(lambda x: x.memory, container_list))
                         pod_cpu = sum(map(lambda x: x.cpu, container_list))
@@ -49,8 +49,9 @@ class CreatePod:
                         plug.priorites_list = plugin_list[9:]
 
                         pod = Pod(name, schedulerName, pod_memory, pod_cpu,
-                                plug, pod_data[name][1], pod_data[name][2],
-                                container_list.copy(), nodeName, nodeSelector, port)
+                                  plug, pod_data[name][1], pod_data[name][2],
+                                  container_list.copy(), nodeName,
+                                  nodeSelector, port)
                         pod_queue.put(pod)
                         self.pod_list.append(pod)
                         container_list.clear()

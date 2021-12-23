@@ -52,7 +52,7 @@ class Priorites:
                 break
 
         if self.least_used_node.name == parameter['node'].name:
-            console.log(":arrow_lower_left:  Least used node -------> {}".format(
+            console.log(":arrow_lower_left:  Least used node ---> {}".format(
                             self.least_used_node.name), style="cyan")
 
             self.least_used_node.score += 1
@@ -78,7 +78,7 @@ class Priorites:
                 break
 
         if self.most_used_node.name == parameter['node'].name:
-            console.log(":arrow_upper_right:  Most used node --------> {}".format(
+            console.log(":arrow_upper_right:  Most used node ---> {}".format(
                                 self.most_used_node.name), style="cyan")
 
             self.most_used_node.score += 1
@@ -136,7 +136,7 @@ class Priorites:
                 for pod_container_list in pod_list.container_list:
                     if container_list.image == pod_container_list.image:
                         parameter['node'].score += 1
-                        console.log(":cd: Image locality Found --> {}".format(
+                        console.log(":cd: Image locality Found ---> {}".format(
                             parameter['node'].name), style="cyan")
                         return
 

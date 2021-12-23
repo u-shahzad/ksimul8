@@ -4,7 +4,6 @@ from rich.console import Console
 from rich.table import Table
 from rich.traceback import install
 import logging
-import time
 install()  # creates a better readable traceback
 
 
@@ -61,7 +60,7 @@ class Kubescheduler(Predicates, Priorites):
         for node in nodes:
 
             priority_parameters = {'cluster': cluster,
-                                   'node': node, 'pod': pod,}
+                                   'node': node, 'pod': pod}
 
             '''
             This loop finds the number of feasible node(s)
@@ -72,17 +71,15 @@ class Kubescheduler(Predicates, Priorites):
                 # checks whether plugin is ON/OFF
                 if pod.plugin.predicate_list[pred]:
                     if (self.predicate_methods[pred](node, pod)):
-                        console.log(
-                            ":thumbs_up: {} ------> {}".format(
-                            pod.plugin.predicates_name[pred], node.name),
-                            style="cyan")
+                        console.log(":thumbs_up: {} ---> {}".format(
+                                    pod.plugin.predicates_name[pred],
+                                    node.name), style="cyan")
                         node_passed = True
 
                     else:
-                        console.log(
-                            ":thumbs_down: {} ------> {}".format(
-                            pod.plugin.predicates_name[pred], node.name),
-                            style="cyan")
+                        console.log(":thumbs_down: {} ---> {}".format(
+                                    pod.plugin.predicates_name[pred],
+                                    node.name), style="cyan")
                         node_passed = False
                         break
 
@@ -127,10 +124,9 @@ class Kubescheduler(Predicates, Priorites):
         for node in nodes:
 
             table.add_row(node.name, str(node.id), str(node.num_of_pods),
-                            str(node.memory), str(node.cpu), str(node.score),
-                            str(node.port))
+                          str(node.memory), str(node.cpu), str(node.score),
+                          str(node.port))
 
             node.score = 0  # clear the node score for the next pod scheduling
 
         console.log(table)
-
