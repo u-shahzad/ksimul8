@@ -26,11 +26,11 @@ A thesis project of *University of Pisa* and *CNR-ISTI*.
 To setup the project initially you have to run these commands
 inside the project's root.
 
-`python3 -m venv venv`
+    python3 -m venv venv
 
-`source venv/bin/activate`
+    source venv/bin/activate
 
-`pip install -r requirements.txt`
+    pip install -r requirements.txt
 
 ### Input Files
 
@@ -69,4 +69,4 @@ It is a **22 bit** string, where **1 = ON** and **0 = OFF** for the following or
 
 To run the project execute the following command:
 
-    `bash run.sh`
+    bash run.sh
