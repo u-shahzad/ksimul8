@@ -34,20 +34,20 @@ inside the project's root.
 
 ### Input Files
 
-Before running the project we need to provide the following input files to run the application:
+Before running the application we need to provide the following input files:
 
-- Pod deployment files (YAML) in the **pods** directory
+- Pod deployment file(s) (YAML) in the **pods** directory
 - Input file (YAML) in the **src** directory
 
 Some of the files are already provided for demo purpose.
 
 ### Plugins
 
-The input file contains an item named *plugin* in the pods section which is used to provide a custom plugin for each pod.
+The input file contains a parameter (*plugin*) which is used to assign a custom plugin for each pod. A plugin is basically a combination of predicates and priorites which are used by the Kubescheduler to execute a scheduling cycle.
 
 For example: `plugin: '0110000000010000001000'`
 
-The plugin is basically a **22 bit** combination where the bits can be set to 0 or 1 according to the following order of predicates and priorites:
+It is a **22 bit** string, where **1 = ON** and **0 = OFF** for the following order of the predicates and the priorites:
 
 |Predicates                | Priorites                          |
 |--------------------------|------------------------------------|
@@ -67,14 +67,6 @@ The plugin is basically a **22 bit** combination where the bits can be set to 0 
 
 ### Run the Project
 
-To run the project for first time execute the following command:
-
-`python code/app.py`
-
-Later you can use the following command:
+To run the project use the following command:
 
 `bash run.sh`
-
-**Reason:** the application creates a test.log file at every execution, and
-the bash file (run.sh) removes the log file to obtain fresh result everytime.
-It may cause a **file not found error** if we execute *bash run.sh* command first time, or if we delete the test.log file manually.
