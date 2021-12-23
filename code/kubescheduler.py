@@ -8,7 +8,7 @@ import time
 install()  # creates a better readable traceback
 
 
-console = Console()
+console = Console(record=True)
 
 logging.basicConfig(filename='test.log', level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:%(message)s')
@@ -25,28 +25,47 @@ class Kubescheduler(Predicates, Priorites):
     '''
 
     def __init__(self, name='Kubescheduler'):
+        super().__init__()
         self.name = name  # name of the scheduler
         self.feasible_nodes = []  # list of feasible nodes for the pod
         self.selected_node = None  # final selected node for the pod
 
         self.predicate_methods = [self.podFitsHostPorts, self.podFitsHost,
-                                self.podFitsResources, self.matchNodeSelector,
-                                self.noVolumeZoneConflict, self.noDiskConflict,
-                                self.maxCSIVolumeCount, self.podToleratesNodeTaints,
-                                self.checkVolumeBinding]
+                                  self.podFitsResources,
+                                  self.matchNodeSelector,
+                                  self.noVolumeZoneConflict,
+                                  self.noDiskConflict,
+                                  self.maxCSIVolumeCount,
+                                  self.podToleratesNodeTaints,
+                                  self.checkVolumeBinding]
+
+        self.priorites_methods = [self.selectorSpreadPriority,
+                                  self.interPodAffinityPriority,
+                                  self.leastRequestedPriority,
+                                  self.mostRequestedPriority,
+                                  self.requestedToCapacityRatioPriority,
+                                  self.balancedResourceAllocation,
+                                  self.nodePreferAvoidPodsPriority,
+                                  self.nodeAffinityPriority,
+                                  self.taintTolerationPriority,
+                                  self.imageLocalityPriority,
+                                  self.serviceSpreadingPriority,
+                                  self.equalPriority,
+                                  self.evenPodsSpreadPriority]
 
     def scheduling_cycle(self, cluster, pod):
         nodes = cluster.get_node_list()  # list of all the nodes
-        lrp_check = False  # check for LeastRequestedPriority
-        mrp_check = False  # check for MostRequestedPriority
-        global node_passed
-        node_passed = False
+        global node_passed  # check to add node in feasible list
+        node_passed = False  # initially node is not feasible
 
         for node in nodes:
 
+            priority_parameters = {'cluster': cluster,
+                                   'node': node, 'pod': pod,}
+
             '''
-            This loop finds the number of feasible node(s) for the pod by
-            applying a set of predicates.
+            This loop finds the number of feasible node(s)
+            for the pod by applying a set of predicates.
             '''
             for pred in range(len(pod.plugin.predicate_list)):
 
@@ -54,14 +73,14 @@ class Kubescheduler(Predicates, Priorites):
                 if pod.plugin.predicate_list[pred]:
                     if (self.predicate_methods[pred](node, pod)):
                         console.log(
-                            ":thumbs_up: {} {}: {}".format(pod.name,
+                            ":thumbs_up: {} ------> {}".format(
                             pod.plugin.predicates_name[pred], node.name),
                             style="cyan")
                         node_passed = True
 
                     else:
                         console.log(
-                            ":thumbs_down: {} {}: {}".format(pod.name,
+                            ":thumbs_down: {} ------> {}".format(
                             pod.plugin.predicates_name[pred], node.name),
                             style="cyan")
                         node_passed = False
@@ -71,19 +90,9 @@ class Kubescheduler(Predicates, Priorites):
                 self.feasible_nodes.append(node)
 
             # Applying Priorites
-
-            if pod.plugin.priorites_list[9]:
-                if (self.imageLocalityPriority(node, pod)):
-                    node.score += 1
-                    console.log(":cd: Image locality Found", style="cyan")
-
-            if pod.plugin.priorites_list[2] and lrp_check is False:
-                self.leastRequestedPriority(cluster)
-                lrp_check = True
-
-            if pod.plugin.priorites_list[3] and mrp_check is False:
-                self.mostRequestedPriority(cluster)
-                mrp_check = True
+            for pri in range(len(pod.plugin.priorites_list)):
+                if pod.plugin.priorites_list[pri]:
+                    self.priorites_methods[pri](priority_parameters)
 
         # check that feasible nodes list is not empty
         if len(self.feasible_nodes) > 0:
@@ -99,6 +108,9 @@ class Kubescheduler(Predicates, Priorites):
             logging.info(' \"Selected Node: {}\"\n'.format(
                             self.selected_node.name))
 
+            console.log("\n---> Selected Node: {}\n".format(
+                    self.selected_node.name), style="bold green")
+
         else:
             pod.nodeName = ''  # no feasible node for pod
 
@@ -113,7 +125,6 @@ class Kubescheduler(Predicates, Priorites):
         table.add_column("Port", justify="center", style="cyan")
 
         for node in nodes:
-            # print(node.serialize(), '\n')
 
             table.add_row(node.name, str(node.id), str(node.num_of_pods),
                             str(node.memory), str(node.cpu), str(node.score),

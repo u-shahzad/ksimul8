@@ -50,7 +50,7 @@ class CreatePod:
 
                         pod = Pod(name, schedulerName, pod_memory, pod_cpu,
                                 plug, pod_data[name][1], pod_data[name][2],
-                                container_list, nodeName, nodeSelector, port)
+                                container_list.copy(), nodeName, nodeSelector, port)
                         pod_queue.put(pod)
                         self.pod_list.append(pod)
                         container_list.clear()

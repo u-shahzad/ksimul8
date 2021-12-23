@@ -31,14 +31,14 @@ class Priorites:
 
         pass
 
-    def leastRequestedPriority(self, cluster):
+    def leastRequestedPriority(self, parameter):
         '''
         Favors nodes with fewer requested resources. In other words,
         the more Pods that are placed on a Node, and the more resources
         thosePods use, the lower the ranking this policy will give.
         '''
 
-        nodes = cluster.get_node_list()
+        nodes = parameter['cluster'].get_node_list()
         node_list = []
 
         for node in nodes:
@@ -51,19 +51,20 @@ class Priorites:
                 self.least_used_node = node
                 break
 
-        console.log(":arrow_lower_left:  Least used node {}".format(
+        if self.least_used_node.name == parameter['node'].name:
+            console.log(":arrow_lower_left:  Least used node -------> {}".format(
                             self.least_used_node.name), style="cyan")
 
-        self.least_used_node.score += 1
+            self.least_used_node.score += 1
 
-    def mostRequestedPriority(self, cluster):
+    def mostRequestedPriority(self, parameter):
         '''
         Favors nodes with most requested resources. This policy will fit
         the scheduled Pods onto the smallest number of Nodes needed to run
         your overall set of workloads.
         '''
 
-        nodes = cluster.get_node_list()
+        nodes = parameter['cluster'].get_node_list()
         node_list = []
 
         for node in nodes:
@@ -76,10 +77,11 @@ class Priorites:
                 self.most_used_node = node
                 break
 
-        console.log(":arrow_upper_right:  Most used node {}".format(
-                            self.most_used_node.name), style="cyan")
+        if self.most_used_node.name == parameter['node'].name:
+            console.log(":arrow_upper_right:  Most used node --------> {}".format(
+                                self.most_used_node.name), style="cyan")
 
-        self.most_used_node.score += 1
+            self.most_used_node.score += 1
 
     def requestedToCapacityRatioPriority():
         '''
@@ -123,18 +125,20 @@ class Priorites:
 
         pass
 
-    def imageLocalityPriority(self, node, pod):
+    def imageLocalityPriority(self, parameter):
         '''
         Favors nodes that already have the container images for that
         Pod cached locally.
         '''
 
-        for pod_list in node.pod_list:
-            for container_list in pod.container_list:
+        for pod_list in parameter['node'].pod_list:
+            for container_list in parameter['pod'].container_list:
                 for pod_container_list in pod_list.container_list:
                     if container_list.image == pod_container_list.image:
-                        return True
-        return False
+                        parameter['node'].score += 1
+                        console.log(":cd: Image locality Found --> {}".format(
+                            parameter['node'].name), style="cyan")
+                        return
 
     def serviceSpreadingPriority():
         '''
