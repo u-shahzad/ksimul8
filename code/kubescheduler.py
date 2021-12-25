@@ -52,7 +52,7 @@ class Kubescheduler(Predicates, Priorites):
                                   self.equalPriority,
                                   self.evenPodsSpreadPriority]
 
-    def scheduling_cycle(self, cluster, pod):
+    def scheduling_cycle(self, cluster, pod, simTime):
         nodes = cluster.get_node_list()  # list of all the nodes
         global node_passed  # check to add node in feasible list
         node_passed = False  # initially node is not feasible
@@ -102,11 +102,11 @@ class Kubescheduler(Predicates, Priorites):
             self.selected_node.add_pod(pod)  # add the pod to the selected node
             pod.node = self.selected_node  # bind pod to the selected node
 
-            logging.info(' \"Selected Node: {}\"\n'.format(
-                            self.selected_node.name))
+            logging.info(' \"The selected node: {}\"\n'.format(
+                         self.selected_node.name))
 
-            console.log("\n---> Selected Node: {}\n".format(
-                    self.selected_node.name), style="bold green")
+            console.log("\n---> Selected node = {} *** [Simulation Time: {} seconds]\n".format(
+                        self.selected_node.name, simTime), style="bold green")
 
         else:
             pod.nodeName = ''  # no feasible node for pod

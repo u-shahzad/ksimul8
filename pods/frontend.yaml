@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: frontend
+  name: Frontend
   labels:
     name: multischeduler-example
 spec:

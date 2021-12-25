@@ -12,7 +12,7 @@ class Pod:
 
     id_iter = itertools.count()
 
-    def __init__(self, name, schedulerName, memory, cpu, plugin, arrivalRate,
+    def __init__(self, name, schedulerName, memory, cpu, plugin, arrivalTime,
                  serviceTime, containerList, nodeName='', nodeSelector='',
                  port=None):
 
@@ -27,8 +27,7 @@ class Pod:
         self.nodeSelector = nodeSelector  # a field to check node label
         self.port = port  # network port requirement of the pod
         self.node = None  # the node object which pod will bind in the future
-        self.arrivalRate = arrivalRate
-        self.arrivalTime = 0
+        self.arrivalTime = arrivalTime
         self.serviceTime = serviceTime
         self.container_list = containerList  # list of containers in the pod
 

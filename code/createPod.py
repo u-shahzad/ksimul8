@@ -14,7 +14,7 @@ class CreatePod:
     def create(self, pod_queue, pod_data):
         container_list = []
 
-        for filename in glob.glob('pods/*.yaml'):
+        for filename in sorted(glob.glob('pods/*.yaml')):
             with open(os.path.join(os.getcwd(), filename), 'r') as stream:
                 try:
                     pod_file = yaml.safe_load(stream)

@@ -1,9 +1,9 @@
 apiVersion: v1
 metadata:
   name: InputFile
-  simulationTime: 180
 cluster:
-  creationTime: 5
+  num_mNode: 1
+  wNode_creationTime: 5
   node:
   - name: 'n1'
     memory: 64
@@ -51,7 +51,7 @@ pods:
     plugin: '0011000000010000001000'
     arrivalRate: 5
     serviceTime: 15
-  - name: 'frontend'
+  - name: 'Frontend'
     plugin: '0110000000010000001000'
     arrivalRate: 5
-    serviceTime: 15
+    serviceTime: 165
