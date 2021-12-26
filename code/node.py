@@ -2,7 +2,6 @@ import itertools
 
 
 class Node:
-
     '''
     A Node is a worker machine in Kubernetes and may be either a virtual or a
     physical machine, depending on the cluster. Each Node is managed by the
@@ -10,7 +9,6 @@ class Node:
     plane automatically handles scheduling the pods across the Nodes in the
     cluster.
     '''
-
     id_iter = itertools.count()
 
     def __init__(self, name, memory, cpu, label=''):

@@ -1,12 +1,10 @@
 class Plugin:
-
     '''
     A scheduling Profile allows you to configure the different stages of
     scheduling in the kube-scheduler. Each stage is exposed in an extension
     point. Plugins provide scheduling behaviors by implementing one or more
     of these extension points.
     '''
-
     def __init__(
                 self, _pfhp=False, _pfh=False, _pfr=False, _mns=False,
                 _nvzc=False, _ndc=False, _mCSIvc=False, _ptnt=False,

@@ -14,7 +14,6 @@ logging.basicConfig(filename='test.log', level=logging.DEBUG,
 
 
 class Kubescheduler(Predicates, Priorites):
-
     '''
     The Kubernetes scheduler is a control plane process which assigns Pods to
     Nodes. The scheduler determines which Nodes are valid placements for each
@@ -22,7 +21,6 @@ class Kubescheduler(Predicates, Priorites):
     resources. The scheduler then ranks each valid Node and binds the Pod to
     a suitable Node.
     '''
-
     def __init__(self, name='Kubescheduler'):
         super().__init__()
         self.name = name  # name of the scheduler
@@ -58,16 +56,13 @@ class Kubescheduler(Predicates, Priorites):
         node_passed = False  # initially node is not feasible
 
         for node in nodes:
-
             priority_parameters = {'cluster': cluster,
                                    'node': node, 'pod': pod}
-
             '''
             This loop finds the number of feasible node(s)
             for the pod by applying a set of predicates.
             '''
             for pred in range(len(pod.plugin.predicate_list)):
-
                 # checks whether plugin is ON/OFF
                 if pod.plugin.predicate_list[pred]:
                     if (self.predicate_methods[pred](node, pod)):
@@ -75,7 +70,6 @@ class Kubescheduler(Predicates, Priorites):
                                     pod.plugin.predicates_name[pred],
                                     node.name), style="cyan")
                         node_passed = True
-
                     else:
                         console.log(":thumbs_down: {} ---> {}".format(
                                     pod.plugin.predicates_name[pred],
@@ -102,14 +96,16 @@ class Kubescheduler(Predicates, Priorites):
             self.selected_node.add_pod(pod)  # add the pod to the selected node
             pod.node = self.selected_node  # bind pod to the selected node
 
-            logging.info(' \"The selected node: {}\"\n'.format(
+            logging.info(' \"Selected node: {}\"\n'.format(
                          self.selected_node.name))
 
-            console.log("\n---> Selected node = {} *** [Simulation Time: {} seconds]\n".format(
+            console.log("\n---> Selected node = {} :hourglass: Simulation Time: {} seconds\n".format(
                         self.selected_node.name, simTime), style="bold green")
 
         else:
-            pod.nodeName = ''  # no feasible node for pod
+            pod.nodeName = ''  # no feasible node found for the pod
+            logging.info(' \"No feasible node found\"\n')
+            console.log("\n---> No feasible node found :hourglass: Simulation Time: {} seconds\n".format(simTime), style="bold red")
 
         table = Table(title="Node Description")
 
@@ -122,7 +118,6 @@ class Kubescheduler(Predicates, Priorites):
         table.add_column("Port", justify="center", style="cyan")
 
         for node in nodes:
-
             table.add_row(node.name, str(node.id), str(node.num_of_pods),
                           str(node.memory), str(node.cpu), str(node.score),
                           str(node.port))

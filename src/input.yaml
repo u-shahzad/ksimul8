@@ -34,7 +34,7 @@ pods:
   - name: 'Pod1'
     plugin: '0010000000001000001000'
     arrivalRate: 5
-    serviceTime: 15
+    serviceTime: 55
   - name: 'Pod2'
     plugin: '0010000000010000001000'
     arrivalRate: 5
@@ -50,7 +50,7 @@ pods:
   - name: 'Pod5'
     plugin: '0011000000010000001000'
     arrivalRate: 5
-    serviceTime: 15
+    serviceTime: 155
   - name: 'Frontend'
     plugin: '0110000000010000001000'
     arrivalRate: 5

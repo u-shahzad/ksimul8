@@ -2,14 +2,12 @@ import itertools
 
 
 class Pod:
-
     '''
     A pod is the smallest execution unit in Kubernetes. A pod encapsulates
     one or more applications. Pods are ephemeral by nature, if a
     pod (or the node it executes on) fails, Kubernetes can automatically
     create a new replica of that pod to continue operations.
     '''
-
     id_iter = itertools.count()
 
     def __init__(self, name, schedulerName, memory, cpu, plugin, arrivalTime,
@@ -27,8 +25,8 @@ class Pod:
         self.nodeSelector = nodeSelector  # a field to check node label
         self.port = port  # network port requirement of the pod
         self.node = None  # the node object which pod will bind in the future
-        self.arrivalTime = arrivalTime
-        self.serviceTime = serviceTime
+        self.arrivalTime = arrivalTime  # the time pod entered in the queue
+        self.serviceTime = serviceTime  # time to live in the node
         self.container_list = containerList  # list of containers in the pod
 
     def serialize(self):

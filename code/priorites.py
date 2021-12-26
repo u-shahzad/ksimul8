@@ -1,15 +1,12 @@
 from rich.console import Console
-
 console = Console()
 
 
 class Priorites:
-
     '''
     Priorities are soft constraints. They may be violated, but it gives
     you an idea of how well the constraints are being met or not.
     '''
-
     def __init__(self):
 
         self.least_used_node = None
