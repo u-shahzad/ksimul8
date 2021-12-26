@@ -19,6 +19,10 @@ A thesis project of *University of Pisa* and *CNR-ISTI*.
 |------------------|-------------------------------|
 |Usman Shahzad     |u.shahzad1@studenti.unipi.it   |
 
+## Architecture
+
+![image description](images/architecture.png)
+
 ## Instructions
 
 ### Initialization

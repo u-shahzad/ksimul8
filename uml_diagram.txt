@@ -27,7 +27,6 @@ class Pod {
  -node
  -arrivalTime
  -serviceTime
- -ttl
  -container_list
  -serialize()
 }
@@ -45,6 +44,7 @@ class Kubescheduler {
  -feasible_nodes []
  -selected_node
  -predicate_methods [methods..]
+ -priorites_methods [methods..]
  -scheduling_cycle()
 }
 
