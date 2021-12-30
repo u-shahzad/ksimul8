@@ -286,6 +286,7 @@ def main():
 
     # create a simulation environment
     env = simpy.rt.RealtimeEnvironment(factor=0.01, strict=False)
+    # env = simpy.Environment()
 
     MARKDOWN = """# Start Simulation"""
     console.log(Markdown(MARKDOWN), style="bold magenta")
