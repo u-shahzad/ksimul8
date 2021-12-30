@@ -30,13 +30,14 @@ cluster:
     cpu: 4096
     label: null
 pods:
+  retries: 2
   pod:
   - name: 'Pod1'
-    plugin: '0010000000001000001000'
+    plugin: '1110000000001000001000'
     arrivalRate: 5
-    serviceTime: 55
+    serviceTime: 15
   - name: 'Pod2'
-    plugin: '0010000000010000001000'
+    plugin: '1110000000010000001000'
     arrivalRate: 5
     serviceTime: 15
   - name: 'Pod3'

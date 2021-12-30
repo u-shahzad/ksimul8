@@ -23,7 +23,7 @@ table = Table(title="Pod Description")
 
 table.add_column("Name", justify="center", style="cyan")
 table.add_column("ID", justify="center", style="magenta")
-table.add_column("Node Name", justify="center", style="green")
+table.add_column("Node Assigned", justify="center", style="green")
 table.add_column("Memory Req", justify="center", style="cyan")
 table.add_column("CPU Req", justify="center", style="magenta")
 table.add_column("Bind", justify="center", style="green")
@@ -54,12 +54,13 @@ _PODS = []  # contains list of all the pods created
 _POD_QUEUE = queue.Queue()  # pods arrive in a FIFO queue
 
 
-def cluster_generator(env, num_mNode):
+def cluster_generator(env, num_mNode, retries):
 
     console.log("---> Start Cluster :hourglass: Simulation Time: {} seconds\n".format(
                 env.now), style="bold green")
+    logging.info(' Start Cluster at {} seconds\n'.format(env.now))
 
-    cluster = Cluster(env, num_mNode)  # create cluster with a master node
+    cluster = Cluster(env, num_mNode)  # create cluster with master node(s)
     request = cluster.master_node.request()  # access master node resource
     yield request
 
@@ -71,12 +72,13 @@ def cluster_generator(env, num_mNode):
     yield nodes
     console.log("---> Nodes created successfully :hourglass: Simulation Time: {} seconds\n".format(
                 env.now), style="blue bold")
+    logging.info(' Nodes created successfully at {} seconds\n'.format(env.now))
 
     '''
     Tell the simulation enviroment to run the create_pods activity generator.
     The method create pods and add them in a FIFO queue.
     '''
-    pods = env.process(create_pods(env))
+    pods = env.process(create_pods_generator(env))
     yield pods
 
     # Keep doing this indefinitely (whilst the program's running)
@@ -85,7 +87,7 @@ def cluster_generator(env, num_mNode):
         # wait before getting next pod
         yield env.timeout(5)
 
-        # if the queue containing pods is not empty
+        # if the queue is not empty
         if (_POD_QUEUE.empty() is False):
 
             pod = _POD_QUEUE.get()  # pop the pod from the queue
@@ -100,7 +102,7 @@ def cluster_generator(env, num_mNode):
             Tell the simulation enviroment to run the
             drop pod activity generator
             '''
-            removePod = env.process(drop_pod_generator(env, pod))
+            removePod = env.process(drop_pod_generator(env, pod, retries))
 
         yield scheduler | removePod  # Either one process finished
 
@@ -139,7 +141,7 @@ def create_nodes_generator(env, cluster):
                 print(exc)
 
 
-def create_pods(env):
+def create_pods_generator(env):
     '''
     This function creates all the pods described in the input file.
     '''
@@ -213,7 +215,7 @@ def create_pods(env):
                 print(exc)
 
 
-def drop_pod_generator(env, pod):
+def drop_pod_generator(env, pod, retries):
     '''
     This function removes the pod from the node it is bind to.
     '''
@@ -233,6 +235,11 @@ def drop_pod_generator(env, pod):
                     pod.name), style="bold red")
         logging.info(" Can't Remove {} because it's not bind\n".format(pod.name))
 
+        # Add Pod in the queue again for retrying the scheduling of the pod
+        if pod.schedulingRetries < retries:
+            _POD_QUEUE.put(pod)
+            pod.schedulingRetries += 1
+
 
 def kubescheduler_generator(env, cluster, pod):
     '''
@@ -251,7 +258,7 @@ def kubescheduler_generator(env, cluster, pod):
         logging.info(' {} assigned a node at {} seconds \n'.format(
                         pod.name, env.now))
 
-    table.add_row(pod.name, str(pod.id), pod.nodeName,
+    table.add_row(pod.name, str(pod.id), pod.assignedNode,
                   str(pod.memory), str(pod.cpu), str(pod.is_bind),
                   str(pod.port), str(pod.arrivalTime),
                   str(pod.serviceTime))
@@ -272,6 +279,7 @@ def main():
             try:
                 input = yaml.safe_load(stream)
                 num_mNode = input['cluster']['num_mNode']
+                retries = input['pods']['retries']
 
             except yaml.YAMLError as exc:
                 print(exc)
@@ -282,7 +290,7 @@ def main():
     MARKDOWN = """# Start Simulation"""
     console.log(Markdown(MARKDOWN), style="bold magenta")
 
-    env.process(cluster_generator(env, num_mNode))
+    env.process(cluster_generator(env, num_mNode, retries))
     # Set the simulation to run till the cluster process finish
     env.run()
 
@@ -295,15 +303,17 @@ def main():
                            str(node.port))
     console.log(node_table)
 
-    table.add_row("", "", "", "", "", "", "", "", "")
+    table.add_row("-----", "-----", "-----", "-----",
+                  "-----", "-----", "-----", "-----", "-----")
 
     for pod in _PODS:
-        table.add_row(pod.name, str(pod.id), pod.nodeName,
+        table.add_row(pod.name, str(pod.id), pod.assignedNode,
                       str(pod.memory), str(pod.cpu), str(pod.is_bind),
                       str(pod.port), str(pod.arrivalTime),
                       str(pod.serviceTime))
     console.log(table)
 
+    logging.info(' Stop Cluster at {} seconds\n'.format(env.now))
     console.save_html("demo.html")  # save the results in a demo HTML file
 
 

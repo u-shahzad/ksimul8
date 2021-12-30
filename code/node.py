@@ -27,7 +27,7 @@ class Node:
         self.memory -= pod.memory  # decreasing node memory resource
         self.cpu -= pod.cpu  # decreasing node cpu resource
         pod.is_bind = True  # changing pod state to bind
-        pod.nodeName = self.name  # changing node name of the pod
+        pod.assignedNode = self.name  # updating the assigned node of the pod
         self.num_of_pods += 1  # increment the number of pods in the node
 
         # if pod also contains a network port, add in the port list
@@ -39,7 +39,7 @@ class Node:
         self.memory += pod.memory  # releasing node memory resource
         self.cpu += pod.cpu  # releasing node cpu resource
         pod.is_bind = False  # changing pod state to unbind
-        pod.nodeName = ''  # removing node name of the pod
+        pod.assignedNode = ''  # removing assigned node name of the pod
         self.num_of_pods -= 1  # decrement the number of pods in the node
 
         # if pod also contains a network port, release it from the port list

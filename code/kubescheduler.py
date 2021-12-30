@@ -61,6 +61,7 @@ class Kubescheduler(Predicates, Priorites):
             '''
             This loop finds the number of feasible node(s)
             for the pod by applying a set of predicates.
+            This Process is called FILTERING.
             '''
             for pred in range(len(pod.plugin.predicate_list)):
                 # checks whether plugin is ON/OFF
@@ -80,7 +81,10 @@ class Kubescheduler(Predicates, Priorites):
             if node_passed:
                 self.feasible_nodes.append(node)
 
-            # Applying Priorites
+            '''
+            This loop apply a set of priorites on each node.
+            This Process is called SCORING.
+            '''
             for pri in range(len(pod.plugin.priorites_list)):
                 if pod.plugin.priorites_list[pri]:
                     self.priorites_methods[pri](priority_parameters)
@@ -102,8 +106,7 @@ class Kubescheduler(Predicates, Priorites):
             console.log("\n---> Selected node = {} :hourglass: Simulation Time: {} seconds\n".format(
                         self.selected_node.name, simTime), style="bold green")
 
-        else:
-            pod.nodeName = ''  # no feasible node found for the pod
+        else:  # no feasible node found for the pod
             logging.info(' \"No feasible node found\"\n')
             console.log("\n---> No feasible node found :hourglass: Simulation Time: {} seconds\n".format(simTime), style="bold red")
 

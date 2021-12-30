@@ -17,7 +17,7 @@ class Pod:
         self.name = name  # name of the pod
         self.id = next(Pod.id_iter)  # assigns unique id for each pod
         self.schedulerName = schedulerName  # name of scheduler that pod wants
-        self.nodeName = nodeName  # name of node that the pod is bind to
+        self.nodeName = nodeName  # name of node that the pod prefers to bind
         self.memory = memory  # RAM requirements of the pod
         self.cpu = cpu  # CPU requirements of the pod
         self.is_bind = False  # initially pod is not bind
@@ -28,9 +28,10 @@ class Pod:
         self.arrivalTime = arrivalTime  # the time pod entered in the queue
         self.serviceTime = serviceTime  # time to live in the node
         self.container_list = containerList  # list of containers in the pod
+        self.schedulingRetries = 0  # retries for scheduling a pod if not bind
+        self.assignedNode = ''  # name of node that the pod is bind to
 
     def serialize(self):
-
         return {"Name": self.name,
                 "Pod ID": self.id,
                 "nodeName": self.nodeName,
