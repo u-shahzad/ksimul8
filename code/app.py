@@ -291,6 +291,11 @@ def main():
     elif simType == 'n':
         env = simpy.Environment()
 
+    # erase logs of the previous run
+    file = open("test.log","r+")
+    file.truncate(0)
+    file.close()
+
     MARKDOWN = """# Start Simulation"""
     console.log(Markdown(MARKDOWN), style="bold magenta")
 
@@ -307,8 +312,8 @@ def main():
                            str(node.port))
     console.log(node_table)
 
-    table.add_row("-----", "-----", "-----", "-----",
-                  "-----", "-----", "-----", "-----", "-----")
+    table.add_row("---", "---", "---", "---",
+                  "---", "---", "---", "---", "---")
 
     for pod in _PODS:
         table.add_row(pod.name, str(pod.id), pod.assignedNode,
@@ -317,7 +322,7 @@ def main():
                       str(pod.serviceTime))
     console.log(table)
 
-    logging.info(' Stop Cluster at {} seconds\n'.format(env.now))
+    logging.info(' Stop Cluster at {} seconds'.format(env.now))
     console.save_html("demo.html")  # save the results in a demo HTML file
 
 
