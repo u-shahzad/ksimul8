@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: Pod2
+  labels:
+    name: multischeduler-example
+spec:
+  schedulerName: default-scheduler
+  containers:
+  - name: appv1.1
+    image: nginx
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "64m"
+      limits:
+        memory: "64Mi"
+        cpu: "128m"
+  - name: log-aggregator
+    image: images.my-company.example/log-aggregator:v6
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "64Mi"
+        cpu: "250m"
+  nodeName: n4
+  nodeSelector:
+    disktype: ''
+  port: 80

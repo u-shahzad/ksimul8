@@ -280,13 +280,16 @@ def main():
                 input = yaml.safe_load(stream)
                 num_mNode = input['cluster']['num_mNode']
                 retries = input['pods']['retries']
+                simType = input['metadata']['simType']
 
             except yaml.YAMLError as exc:
                 print(exc)
 
     # create a simulation environment
-    env = simpy.rt.RealtimeEnvironment(factor=0.01, strict=False)
-    # env = simpy.Environment()
+    if simType == 'rt':
+        env = simpy.rt.RealtimeEnvironment(factor=0.01, strict=False)
+    elif simType == 'n':
+        env = simpy.Environment()
 
     MARKDOWN = """# Start Simulation"""
     console.log(Markdown(MARKDOWN), style="bold magenta")

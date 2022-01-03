@@ -3,7 +3,7 @@ metadata:
   name: InputFile
   # 'rt' for Realtime simulator environment.
   # 'n' for normal simulator environment.
-  simType: 'rt'
+  simType: 'n'
 cluster:
   num_mNode: 1
   wNode_creationTime: 5
