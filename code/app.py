@@ -174,9 +174,9 @@ def create_pods_generator(env):
 
                 if name in pod_data:
                     yield env.timeout(pod_data[name][1])
-                    logging.info(' {} entered queue at {} seconds \n'.format(
+                    logging.info(' {} entered the queue at {} seconds \n'.format(
                                  name, env.now))
-                    console.log('---> {} entered queue at {} seconds'.format(
+                    console.log('---> {} entered the queue at {} seconds'.format(
                                 name, env.now))
                     schedulerName = pod_file['spec']['schedulerName']
                     nodeName = pod_file['spec']['nodeName']
@@ -239,6 +239,13 @@ def drop_pod_generator(env, pod, retries):
         if pod.schedulingRetries < retries:
             _POD_QUEUE.put(pod)
             pod.schedulingRetries += 1
+            logging.info(' {} again entered the queue at {} seconds [Retry # {}]\n'.format(
+                                 pod.name, env.now, pod.schedulingRetries))
+            console.log('---> {} again entered the queue at {} seconds [Retry # {}]'.format(
+                                pod.name, env.now, pod.schedulingRetries))
+        else:
+            logging.info(' [Retries finished]')
+            console.log('---> [Retries finished]')
 
 
 def kubescheduler_generator(env, cluster, pod):
