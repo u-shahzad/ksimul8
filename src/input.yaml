@@ -3,7 +3,7 @@ metadata:
   name: InputFile
   # 'rt' for Realtime simulator environment.
   # 'n' for normal simulator environment.
-  simType: 'rt'
+  simType: 'n'
 cluster:
   num_mNode: 1
   wNode_creationTime: 5
@@ -13,43 +13,67 @@ cluster:
     cpu: 128
     label: null
   - name: 'n2'
-    memory: 128
-    cpu: 256
+    memory: 64
+    cpu: 128
     label: null
   - name: 'n3'
-    memory: 256
-    cpu: 512
+    memory: 64
+    cpu: 128
     label: 'ssd'
   - name: 'n4'
-    memory: 512
-    cpu: 1024
+    memory: 64
+    cpu: 128
     label: null
   - name: 'n5'
-    memory: 1024
-    cpu: 2048
+    memory: 64
+    cpu: 128
     label: 'ssd'
   - name: 'n6'
-    memory: 2048
-    cpu: 4096
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n7'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n8'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n9'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n10'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n11'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n12'
+    memory: 64
+    cpu: 128
     label: null
 pods:
   retries: 2
   pod:
   - name: 'Pod1'
     plugin: '1110000000001000001000'
-    arrivalRate: 5
+    arrivalRate: 2
     serviceTime: 15
   - name: 'Pod2'
     plugin: '1110000000010000001000'
-    arrivalRate: 5
+    arrivalRate: 3
     serviceTime: 15
   - name: 'Pod3'
     plugin: '0010000000010000001000'
-    arrivalRate: 5
+    arrivalRate: 1
     serviceTime: 15
   - name: 'Pod4'
     plugin: '0010000000010000001000'
-    arrivalRate: 5
+    arrivalRate: 4
     serviceTime: 15
   - name: 'Pod5'
     plugin: '0011000000010000001000'
@@ -57,5 +81,5 @@ pods:
     serviceTime: 155
   - name: 'Frontend'
     plugin: '0110000000010000001000'
-    arrivalRate: 5
-    serviceTime: 165
+    arrivalRate: 3
+    serviceTime: 55

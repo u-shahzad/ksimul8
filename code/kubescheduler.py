@@ -127,4 +127,4 @@ class Kubescheduler(Predicates, Priorites):
 
             node.score = 0  # clear the node score for the next pod scheduling
 
-        console.log(table)
+        # console.log(table)

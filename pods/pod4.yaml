@@ -14,17 +14,17 @@ spec:
         memory: "32Mi"
         cpu: "64m"
       limits:
-        memory: "64Mi"
-        cpu: "128m"
+        memory: "32Mi"
+        cpu: "64m"
   - name: log-aggregator
     image: images.my-company.example/log-aggregator:v6
     resources:
       requests:
-        memory: "64Mi"
+        memory: "32Mi"
         cpu: "250m"
       limits:
-        memory: "128Mi"
-        cpu: "5000m"
+        memory: "32Mi"
+        cpu: "64m"
   nodeName: n4
   nodeSelector:
     disktype: 'ssd'

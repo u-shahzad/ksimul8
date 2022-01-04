@@ -10,6 +10,11 @@ from rich.table import Table
 from rich.traceback import install
 from rich.markdown import Markdown
 from rich.progress import track
+from random import seed
+from random import randint
+from numpy import random
+import numpy as np
+import pandas as pd
 import simpy.rt
 import queue
 import logging
@@ -52,6 +57,10 @@ logging.basicConfig(filename='test.log', level=logging.DEBUG,
 _NODES = []  # contains list of all the working nodes in the cluster
 _PODS = []  # contains list of all the pods created
 _POD_QUEUE = queue.Queue()  # pods arrive in a FIFO queue
+
+index = []  # list of simulation time when pod is bind to a node
+pd_pods = []  # list of names of all the pods
+pd_status = []  # boolean list for the bind/unbind status of pod
 
 
 def cluster_generator(env, num_mNode, retries):
@@ -143,7 +152,7 @@ def create_nodes_generator(env, cluster):
 
 def create_pods_generator(env):
     '''
-    This function creates all the pods described in the input file.
+    This function creates all the pods described in the input (YAML) file.
     '''
     console.log("===> Creating Pods ", style="bold blue")
 
@@ -203,16 +212,47 @@ def create_pods_generator(env):
                     plug.predicate_list = plugin_list[:9]
                     plug.priorites_list = plugin_list[9:]
 
-                    pod = Pod(name, schedulerName, pod_memory, pod_cpu,
+                    pod = Pod(name, pod_memory, pod_cpu,
                               plug, env.now, pod_data[name][2],
                               container_list.copy(), nodeName,
-                              nodeSelector, port)
+                              nodeSelector, port, schedulerName)
                     _POD_QUEUE.put(pod)
                     _PODS.append(pod)
                     container_list.clear()
 
             except yaml.YAMLError as exc:
                 print(exc)
+
+
+def create_pods_csv_generator(env):
+    '''
+    This function creates all the pods described in the csv file.
+    '''
+    # seed random number generator
+    seed(1)
+    # extract data form the file
+    df = pd.read_csv('src/jobs.csv')
+    for i in range(len(df)):
+        yield env.timeout(random.exponential(scale=1.0, size=None))
+
+        name = df['id'].values[i]
+        duration = df['duration'].values[i]
+        mem = df['mem'].values[i] * 64
+        cpu = df['cpu'].values[i] * 128
+
+        plug = Plugin()
+        plugin_list = list(map(lambda x: x == "1", '0010000000001000001000'))
+        plug.predicate_list = plugin_list[:9]
+        plug.priorites_list = plugin_list[9:]
+
+        logging.info(' {} entered the queue at {} seconds \n'.format(
+                        name, env.now))
+        console.log('---> {} entered the queue at {} seconds'.format(
+                    name, env.now))
+
+        pod = Pod(name, mem, cpu, plug, env.now, randint(duration, 200), [])
+        _POD_QUEUE.put(pod)
+        _PODS.append(pod)
 
 
 def drop_pod_generator(env, pod, retries):
@@ -261,16 +301,22 @@ def kubescheduler_generator(env, cluster, pod):
     # Start kubescheduler
     kubescheduler.scheduling_cycle(cluster, pod, env.now)
 
+    index.append(env.now)
+    pd_pods.append(pod.name)
     if pod.is_bind is True:
         logging.info(' {} assigned a node at {} seconds \n'.format(
                         pod.name, env.now))
+        pd_status.append(True)
+        pod.node.num_pod_history += 1
+    else:
+        pd_status.append(False)
 
     table.add_row(pod.name, str(pod.id), pod.assignedNode,
                   str(pod.memory), str(pod.cpu), str(pod.is_bind),
                   str(pod.port), str(pod.arrivalTime),
                   str(pod.serviceTime))
 
-    console.log(table)  # print table
+    # console.log(table)  # print table
 
     scheduling_time = 5  # time used by the scheduler to run its cycle
     yield env.timeout(scheduling_time)
@@ -299,7 +345,7 @@ def main():
         env = simpy.Environment()
 
     # erase logs of the previous run
-    file = open("test.log","r+")
+    file = open("test.log", "r+")
     file.truncate(0)
     file.close()
 
@@ -330,6 +376,21 @@ def main():
     console.log(table)
 
     logging.info(' Stop Cluster at {} seconds'.format(env.now))
+
+    MARKDOWN = """# Pod DataFrame"""
+    console.log(Markdown(MARKDOWN), style="bold magenta")
+
+    # Creating DataFrame
+    d = {
+         "Pod": pd.Series(pd_pods, index),
+         "Bind": pd.Series(pd_status, index)
+    }
+    df = pd.DataFrame(d)
+    console.log(df)
+
+    df = pd.read_csv('src/jobs.csv')
+    print(df)
+
     console.save_html("demo.html")  # save the results in a demo HTML file
 
 

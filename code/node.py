@@ -21,6 +21,7 @@ class Node:
         self.port = []  # list of network ports
         self.label = label  # defines some extra feature in the node
         self.pod_list = []  # contains list of running pods in the node
+        self.num_pod_history = 0  # total num of pods that the node executed
 
     def add_pod(self, pod):
         self.pod_list.append(pod)  # bind pod to the node

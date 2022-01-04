@@ -10,9 +10,9 @@ class Pod:
     '''
     id_iter = itertools.count()
 
-    def __init__(self, name, schedulerName, memory, cpu, plugin, arrivalTime,
+    def __init__(self, name, memory, cpu, plugin, arrivalTime,
                  serviceTime, containerList, nodeName='', nodeSelector='',
-                 port=None):
+                 port=None, schedulerName='default-scheduler'):
 
         self.name = name  # name of the pod
         self.id = next(Pod.id_iter)  # assigns unique id for each pod
