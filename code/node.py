@@ -11,7 +11,7 @@ class Node:
     '''
     id_iter = itertools.count()
 
-    def __init__(self, name, memory, cpu, label=''):
+    def __init__(self, name, memory, cpu, cluster, label=''):
         self.name = name  # name of the node
         self.id = next(Node.id_iter)  # select unique id for each node
         self.num_of_pods = 0  # initially node contains no pod
@@ -22,6 +22,8 @@ class Node:
         self.label = label  # defines some extra feature in the node
         self.pod_list = []  # contains list of running pods in the node
         self.num_pod_history = 0  # total num of pods that the node executed
+        self.cluster = cluster  # nodes cluster object
+        self.active = False  # initially node is not activated
 
     def add_pod(self, pod):
         self.pod_list.append(pod)  # bind pod to the node
@@ -30,6 +32,7 @@ class Node:
         pod.is_bind = True  # changing pod state to bind
         pod.assignedNode = self.name  # updating the assigned node of the pod
         self.num_of_pods += 1  # increment the number of pods in the node
+        pod.binded = True  # a proof that pod was binded by this node
 
         # if pod also contains a network port, add in the port list
         if pod.port is not None:

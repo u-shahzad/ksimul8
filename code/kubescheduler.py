@@ -7,8 +7,6 @@ import logging
 install()  # creates a better readable traceback
 
 
-console = Console(record=True)
-
 logging.basicConfig(filename='test.log', level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
@@ -50,7 +48,7 @@ class Kubescheduler(Predicates, Priorites):
                                   self.equalPriority,
                                   self.evenPodsSpreadPriority]
 
-    def scheduling_cycle(self, cluster, pod, simTime):
+    def scheduling_cycle(self, cluster, pod, simTime, console):
         nodes = cluster.get_node_list()  # list of all the nodes
         global node_passed  # check to add node in feasible list
         node_passed = False  # initially node is not feasible
@@ -99,16 +97,19 @@ class Kubescheduler(Predicates, Priorites):
             self.selected_node = self.feasible_nodes[0]
             self.selected_node.add_pod(pod)  # add the pod to the selected node
             pod.node = self.selected_node  # bind pod to the selected node
+            if self.selected_node.active is False:
+                cluster.active_nodes += 1
+                self.selected_node.active = True  # activating node
 
             logging.info(' \"Selected node: {}\"\n'.format(
                          self.selected_node.name))
 
-            console.log("\n---> Selected node = {} :hourglass: Simulation Time: {} seconds\n".format(
+            console.log("\n---> Selected node = {} :hourglass: [{} seconds]\n".format(
                         self.selected_node.name, simTime), style="bold green")
 
         else:  # no feasible node found for the pod
             logging.info(' \"No feasible node found\"\n')
-            console.log("\n---> No feasible node found :hourglass: Simulation Time: {} seconds\n".format(simTime), style="bold red")
+            console.log("\n---> No feasible node found :hourglass: [{} seconds]".format(simTime), style="bold red")
 
         table = Table(title="Node Description")
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from contextlib import nullcontext
 from cluster import Cluster
 from node import Node
 from pod import Pod
@@ -13,6 +14,7 @@ from rich.progress import track
 from random import seed
 from random import randint
 from numpy import random
+from functools import reduce
 import numpy as np
 import pandas as pd
 import simpy.rt
@@ -63,9 +65,9 @@ pd_pods = []  # list of names of all the pods
 pd_status = []  # boolean list for the bind/unbind status of pod
 
 
-def cluster_generator(env, num_mNode, retries):
+def cluster_generator(env, num_mNode, num_node, jobs):
 
-    console.log("---> Start Cluster :hourglass: Simulation Time: {} seconds\n".format(
+    console.log("---> Start Cluster :hourglass: [{} seconds]\n".format(
                 env.now), style="bold green")
     logging.info(' Start Cluster at {} seconds\n'.format(env.now))
 
@@ -77,9 +79,9 @@ def cluster_generator(env, num_mNode, retries):
     Tell the simulation enviroment to run the
     create_nodes activity generator.
     '''
-    nodes = env.process(create_nodes_generator(env, cluster))
+    nodes = env.process(create_nodes_generator(env, cluster, num_node))
     yield nodes
-    console.log("---> Nodes created successfully :hourglass: Simulation Time: {} seconds\n".format(
+    console.log("---> Nodes created successfully :hourglass: [{} seconds]\n".format(
                 env.now), style="blue bold")
     logging.info(' Nodes created successfully at {} seconds\n'.format(env.now))
 
@@ -87,7 +89,7 @@ def cluster_generator(env, num_mNode, retries):
     Tell the simulation enviroment to run the create_pods activity generator.
     The method create pods and add them in a FIFO queue.
     '''
-    pods = env.process(create_pods_generator(env))
+    pods = env.process(create_pods_csv_generator(env, jobs))
     yield pods
 
     # Keep doing this indefinitely (whilst the program's running)
@@ -100,6 +102,7 @@ def cluster_generator(env, num_mNode, retries):
         if (_POD_QUEUE.empty() is False):
 
             pod = _POD_QUEUE.get()  # pop the pod from the queue
+            pod.wait_in_queue = env.now - pod.arrivalTime
 
             '''
             Tell the simulation enviroment to run the
@@ -111,7 +114,7 @@ def cluster_generator(env, num_mNode, retries):
             Tell the simulation enviroment to run the
             drop pod activity generator
             '''
-            removePod = env.process(drop_pod_generator(env, pod, retries))
+            removePod = env.process(drop_pod_generator(env, pod, cluster))
 
         yield scheduler | removePod  # Either one process finished
 
@@ -122,7 +125,7 @@ def cluster_generator(env, num_mNode, retries):
     cluster.master_node.release(request)  # release resources
 
 
-def create_nodes_generator(env, cluster):
+def create_nodes_generator(env, cluster, num_node):
     '''
     This function creates all working nodes described in the input file.
     '''
@@ -133,14 +136,15 @@ def create_nodes_generator(env, cluster):
             try:
                 input = yaml.safe_load(stream)  # loads data from input file
                 # loop will run till it reach the final node in the list
-                for i in track(range(len(input['cluster']['node']))):
+                # for i in track(range(len(input['cluster']['node']))):
+                for i in range(num_node):
                     name = input['cluster']['node'][i]['name']
                     memory = input['cluster']['node'][i]['memory']
                     cpu = input['cluster']['node'][i]['cpu']
                     label = input['cluster']['node'][i]['label']
                     creationTime = input['cluster']['wNode_creationTime']
 
-                    node = Node(name, memory, cpu, label)  # create node
+                    node = Node(name, memory, cpu, cluster, label)  # create node
                     cluster.add_node(node)  # add node to the cluster
                     _NODES.append(node)
 
@@ -224,15 +228,16 @@ def create_pods_generator(env):
                 print(exc)
 
 
-def create_pods_csv_generator(env):
+def create_pods_csv_generator(env, jobs):
     '''
-    This function creates all the pods described in the csv file.
+    This function creates all the jobs described in the csv file.
     '''
     # seed random number generator
     seed(1)
+    
     # extract data form the file
     df = pd.read_csv('src/jobs.csv')
-    for i in range(len(df)):
+    for i in range(jobs):
         yield env.timeout(random.exponential(scale=1.0, size=None))
 
         name = df['id'].values[i]
@@ -255,17 +260,21 @@ def create_pods_csv_generator(env):
         _PODS.append(pod)
 
 
-def drop_pod_generator(env, pod, retries):
+def drop_pod_generator(env, pod, cluster):
     '''
     This function removes the pod from the node it is bind to.
     '''
     if pod.is_bind:
         yield env.timeout(pod.serviceTime)
 
-        console.log("\n===> Removing {} :hourglass: Simulation Time: {} seconds".format(
+        console.log("\n===> Removing {} :hourglass: [{} seconds]".format(
                     pod.name, env.now), style="bold red")
 
         pod.node.remove_pod(pod)  # remove pod from the node
+        # deactivating the node if it contains no pod
+        if pod.node.num_of_pods == 0:
+            pod.node.active = False
+            cluster.active_nodes -= 1
         pod.node = None  # remove node from the pod
 
         logging.info(' {} removed at {} seconds\n'.format(pod.name, env.now))
@@ -275,17 +284,25 @@ def drop_pod_generator(env, pod, retries):
                     pod.name), style="bold red")
         logging.info(" Can't Remove {} because it's not bind\n".format(pod.name))
 
-        # Add Pod in the queue again for retrying the scheduling of the pod
-        if pod.schedulingRetries < retries:
-            _POD_QUEUE.put(pod)
-            pod.schedulingRetries += 1
-            logging.info(' {} again entered the queue at {} seconds [Retry # {}]\n'.format(
-                                 pod.name, env.now, pod.schedulingRetries))
-            console.log('---> {} again entered the queue at {} seconds [Retry # {}]'.format(
-                                pod.name, env.now, pod.schedulingRetries))
+        if cluster.active_nodes > 0:
+            if _POD_QUEUE.empty() is False:
+                _POD_QUEUE.put(pod)
+                pod.schedulingRetries += 1
+                logging.info(' {} again entered the queue at {} seconds [Retry # {}]\n'.format(
+                                    pod.name, env.now, pod.schedulingRetries))
+                console.log('---> {} again entered the queue at {} seconds [Retry # {}]'.format(
+                                    pod.name, env.now, pod.schedulingRetries))
+            else:
+                logging.info(' No feasible node is available for {} in this cluster\n'.format(
+                            pod.name))
+                console.log('---> No feasible node is available for {} in this cluster'.format(
+                            pod.name))
+
         else:
-            logging.info(' [Retries finished]')
-            console.log('---> [Retries finished]')
+            logging.info(' No feasible node is available for {} in this cluster\n'.format(
+                         pod.name))
+            console.log('---> No feasible node is available for {} in this cluster'.format(
+                        pod.name))
 
 
 def kubescheduler_generator(env, cluster, pod):
@@ -299,7 +316,7 @@ def kubescheduler_generator(env, cluster, pod):
     kubescheduler = Kubescheduler()  # create kubescheduler
 
     # Start kubescheduler
-    kubescheduler.scheduling_cycle(cluster, pod, env.now)
+    kubescheduler.scheduling_cycle(cluster, pod, env.now, console)
 
     index.append(env.now)
     pd_pods.append(pod.name)
@@ -322,75 +339,149 @@ def kubescheduler_generator(env, cluster, pod):
     yield env.timeout(scheduling_time)
 
 
+# Utility function, returns average of a numerical list
+def Average(lst):
+    return reduce(lambda a, b: a + b, lst) / len(lst)
+
+
 def main():
     '''
     We defined the generator functions above. Here's where we will get
     everything running. First we set up a new SimPy simulation enviroment
     '''
-    for filename in glob.glob('src/*.yaml'):
-        with open(os.path.join(os.getcwd(), filename), 'r') as stream:
-            try:
-                input = yaml.safe_load(stream)
-                num_mNode = input['cluster']['num_mNode']
-                retries = input['pods']['retries']
-                simType = input['metadata']['simType']
+    num_of_nodes = []
+    num_of_jobs = []
+    completion_time = []
+    avg_wait_time = []
+    avg_retries = []
+    perc_failed_pods = []
 
-            except yaml.YAMLError as exc:
-                print(exc)
+    for jobs in [50, 100, len(pd.read_csv('src/jobs.csv'))]:
+        for num_node in [2, 4, 8, 16]:
+            for filename in glob.glob('src/*.yaml'):
+                with open(os.path.join(os.getcwd(), filename), 'r') as stream:
+                    try:
+                        input = yaml.safe_load(stream)
+                        num_mNode = input['cluster']['num_mNode']
+                        simType = input['metadata']['simType']
 
-    # create a simulation environment
-    if simType == 'rt':
-        env = simpy.rt.RealtimeEnvironment(factor=0.01, strict=False)
-    elif simType == 'n':
-        env = simpy.Environment()
+                    except yaml.YAMLError as exc:
+                        print(exc)
 
-    # erase logs of the previous run
-    file = open("test.log", "r+")
-    file.truncate(0)
-    file.close()
+            # create a simulation environment
+            if simType == 'rt':
+                env = simpy.rt.RealtimeEnvironment(factor=0.01, strict=False)
+            elif simType == 'n':
+                env = simpy.Environment()
 
-    MARKDOWN = """# Start Simulation"""
-    console.log(Markdown(MARKDOWN), style="bold magenta")
+            # erase logs of the previous run
+            file = open("test.log", "r+")
+            file.truncate(0)
+            file.close()
 
-    env.process(cluster_generator(env, num_mNode, retries))
-    # Set the simulation to run till the cluster process finish
-    env.run()
+            MARKDOWN = """# Start Simulation"""
+            console.log(Markdown(MARKDOWN), style="bold magenta")
 
-    MARKDOWN = """# End Result"""
-    console.log(Markdown(MARKDOWN), style="bold magenta")
+            env.process(cluster_generator(env, num_mNode, num_node, jobs))
+            # Set the simulation to run till the cluster process finish
+            env.run()
 
-    for node in _NODES:
-        node_table.add_row(node.name, str(node.id), str(node.num_of_pods),
-                           str(node.memory), str(node.cpu), str(node.score),
-                           str(node.port))
-    console.log(node_table)
+            total_completion_time = env.now
+            logging.info(' Stop Cluster at {} seconds\n'.format(total_completion_time))
+            console.log("\n---> Stop Cluster :hourglass: [{} seconds]\n".format(
+                        total_completion_time), style="bold magenta")
 
-    table.add_row("---", "---", "---", "---",
-                  "---", "---", "---", "---", "---")
+            MARKDOWN = """# End Result"""
+            console.log(Markdown(MARKDOWN), style="bold magenta")
 
-    for pod in _PODS:
-        table.add_row(pod.name, str(pod.id), pod.assignedNode,
-                      str(pod.memory), str(pod.cpu), str(pod.is_bind),
-                      str(pod.port), str(pod.arrivalTime),
-                      str(pod.serviceTime))
-    console.log(table)
+            # for node in _NODES:
+            #     node_table.add_row(node.name, str(node.id), str(node.num_of_pods),
+            #                     str(node.memory), str(node.cpu), str(node.score),
+            #                     str(node.port))
+            # console.log(node_table)
 
-    logging.info(' Stop Cluster at {} seconds'.format(env.now))
+            # table.add_row("---", "---", "---", "---",
+            #               "---", "---", "---", "---", "---")
 
-    MARKDOWN = """# Pod DataFrame"""
-    console.log(Markdown(MARKDOWN), style="bold magenta")
+            # for pod in _PODS:
+            #     table.add_row(pod.name, str(pod.id), pod.assignedNode,
+            #                   str(pod.memory), str(pod.cpu), str(pod.is_bind),
+            #                   str(pod.port), str(pod.arrivalTime),
+            #                   str(pod.serviceTime))
+            # console.log(table)
 
-    # Creating DataFrame
-    d = {
-         "Pod": pd.Series(pd_pods, index),
-         "Bind": pd.Series(pd_status, index)
-    }
-    df = pd.DataFrame(d)
-    console.log(df)
+            # Creating DataFrame
+            d = {
+                "Pod": pd.Series(pd_pods, index),
+                "Bind": pd.Series(pd_status, index)
+            }
+            df = pd.DataFrame(d)
 
-    df = pd.read_csv('src/jobs.csv')
-    print(df)
+            # sorting by first name
+            df.sort_values("Pod", inplace = True)
 
+            # dropping ALL duplicate values
+            df.drop_duplicates(keep = 'last', subset ="Pod", inplace = True)
+
+            retries = []
+            wait_in_queue = []
+            for pod in _PODS:
+                retries.append(pod.schedulingRetries)
+                wait_in_queue.append(pod.wait_in_queue)
+            df['Retries'] = retries
+            df['Wait in Queue'] = wait_in_queue
+
+            console.log(df)  # displaying data
+
+            console.log("\n---> Total Completion Time: {} seconds".format(
+                        total_completion_time), style="bold green")
+            logging.info(' Total Completion Time: {} seconds\n'.format(
+                        total_completion_time))
+
+            console.log("---> Average waiting time in the queue: {} seconds".format(
+                        Average(wait_in_queue)), style="bold green")
+            logging.info(' Average waiting time in the queue: {} seconds\n'.format(
+                        Average(wait_in_queue)))
+
+            console.log("---> Average retries: {}".format(
+                        Average(retries)), style="bold green")
+            logging.info(' Average retries: {}\n'.format(
+                        Average(retries)))
+
+            failed_pods = 0
+            for pod in _PODS:
+                if pod.binded is False:
+                    failed_pods += 1
+
+            console.log("---> Percentage of failed pods: {} %\n".format(
+                        failed_pods/len(_PODS)), style="bold red")
+            logging.info(' Percentage of failed pods: {} %\n'.format(
+                        failed_pods/len(_PODS)))
+
+            num_of_nodes.append(num_node)
+            num_of_jobs.append(jobs)
+            completion_time.append(total_completion_time)
+            avg_wait_time.append(Average(wait_in_queue))
+            avg_retries.append(Average(retries))
+            perc_failed_pods.append(failed_pods/len(_PODS))
+
+            _NODES.clear()
+            _PODS.clear()
+            index.clear()
+            pd_pods.clear()
+            pd_status.clear()
+
+    data = {
+             "num of nodes": num_of_nodes,
+             "num of jobs": num_of_jobs,
+             "completion time": completion_time,
+             "avg waiting time in queue": avg_wait_time,
+             "avg retries": avg_retries,
+             "percentage of failed pods": perc_failed_pods
+            }
+    information = pd.DataFrame(data)
+
+    information.to_csv('results.csv', index=False)
     console.save_html("demo.html")  # save the results in a demo HTML file
 
 

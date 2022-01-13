@@ -56,8 +56,23 @@ cluster:
     memory: 64
     cpu: 128
     label: null
+  - name: 'n13'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n14'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n15'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n16'
+    memory: 64
+    cpu: 128
+    label: null
 pods:
-  retries: 2
   pod:
   - name: 'Pod1'
     plugin: '1110000000001000001000'
@@ -66,7 +81,7 @@ pods:
   - name: 'Pod2'
     plugin: '1110000000010000001000'
     arrivalRate: 3
-    serviceTime: 15
+    serviceTime: 50
   - name: 'Pod3'
     plugin: '0010000000010000001000'
     arrivalRate: 1

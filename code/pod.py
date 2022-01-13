@@ -30,6 +30,8 @@ class Pod:
         self.container_list = containerList  # list of containers in the pod
         self.schedulingRetries = 0  # retries for scheduling an unassigned pod
         self.assignedNode = ''  # node name that the pod is bind to
+        self.wait_in_queue = None  # the time pod waited in the queue
+        self.binded = False  # check that pod was binded or not
 
     def serialize(self):
         return {"Name": self.name,
