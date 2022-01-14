@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from contextlib import nullcontext
 from cluster import Cluster
 from node import Node
 from pod import Pod
@@ -357,7 +356,7 @@ def main():
     perc_failed_pods = []
 
     for jobs in [50, 100, len(pd.read_csv('src/jobs.csv'))]:
-        for num_node in [2, 4, 8, 16]:
+        for num_node in [2, 4, 8, 16, 32]:
             for filename in glob.glob('src/*.yaml'):
                 with open(os.path.join(os.getcwd(), filename), 'r') as stream:
                     try:

@@ -3,7 +3,7 @@ import simpy
 
 class Cluster:
     '''
-    A Kubernetes cluster is a set of nodes that run containerized applications
+    A Kubernetes cluster is a set of nodes that run containerized applications.
     '''
     def __init__(self, env, capacity, status=False):
         self.master_node = simpy.Resource(env, capacity=capacity)

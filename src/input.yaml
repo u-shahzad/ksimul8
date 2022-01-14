@@ -72,6 +72,70 @@ cluster:
     memory: 64
     cpu: 128
     label: null
+  - name: 'n17'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n18'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n19'
+    memory: 64
+    cpu: 128
+    label: 'ssd'
+  - name: 'n20'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n21'
+    memory: 64
+    cpu: 128
+    label: 'ssd'
+  - name: 'n22'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n23'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n24'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n25'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n26'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n27'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n28'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n29'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n30'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n31'
+    memory: 64
+    cpu: 128
+    label: null
+  - name: 'n32'
+    memory: 64
+    cpu: 128
+    label: null
 pods:
   pod:
   - name: 'Pod1'
