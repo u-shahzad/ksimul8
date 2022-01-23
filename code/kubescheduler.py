@@ -48,14 +48,15 @@ class Kubescheduler(Predicates, Priorites):
                                   self.equalPriority,
                                   self.evenPodsSpreadPriority]
 
-    def scheduling_cycle(self, cluster, pod, simTime, console):
+    def scheduling_cycle(self, cluster, pod, simTime, console, printing):
         nodes = cluster.get_node_list()  # list of all the nodes
         global node_passed  # check to add node in feasible list
         node_passed = False  # initially node is not feasible
 
         for node in nodes:
             priority_parameters = {'cluster': cluster,
-                                   'node': node, 'pod': pod}
+                                   'node': node, 'pod': pod,
+                                   'printing': printing}
             '''
             This loop finds the number of feasible node(s)
             for the pod by applying a set of predicates.
@@ -65,12 +66,14 @@ class Kubescheduler(Predicates, Priorites):
                 # checks whether plugin is ON/OFF
                 if pod.plugin.predicate_list[pred]:
                     if (self.predicate_methods[pred](node, pod)):
-                        console.log(":thumbs_up: {} ---> {}".format(
+                        if printing:
+                            console.log(":thumbs_up: {} ---> {}".format(
                                     pod.plugin.predicates_name[pred],
                                     node.name), style="cyan")
                         node_passed = True
                     else:
-                        console.log(":thumbs_down: {} ---> {}".format(
+                        if printing:
+                            console.log(":thumbs_down: {} ---> {}".format(
                                     pod.plugin.predicates_name[pred],
                                     node.name), style="cyan")
                         node_passed = False
@@ -104,12 +107,14 @@ class Kubescheduler(Predicates, Priorites):
             logging.info(' \"Selected node: {}\"\n'.format(
                          self.selected_node.name))
 
-            console.log("\n---> Selected node = {} :hourglass: [{} seconds]\n".format(
+            if printing:
+                console.log("\n---> Selected node = {} :hourglass: [{} seconds]\n".format(
                         self.selected_node.name, simTime), style="bold green")
 
         else:  # no feasible node found for the pod
             logging.info(' \"No feasible node found\"\n')
-            console.log("\n---> No feasible node found :hourglass: [{} seconds]".format(simTime), style="bold red")
+            if printing:
+                console.log("\n---> No feasible node found :hourglass: [{} seconds]".format(simTime), style="bold red")
 
         table = Table(title="Node Description")
 
@@ -122,9 +127,9 @@ class Kubescheduler(Predicates, Priorites):
         table.add_column("Port", justify="center", style="cyan")
 
         for node in nodes:
-            table.add_row(node.name, str(node.id), str(node.num_of_pods),
-                          str(node.memory), str(node.cpu), str(node.score),
-                          str(node.port))
+            # table.add_row(node.name, str(node.id), str(node.num_of_pods),
+            #               str(node.memory), str(node.cpu), str(node.score),
+            #               str(node.port))
 
             node.score = 0  # clear the node score for the next pod scheduling
 

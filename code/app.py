@@ -14,6 +14,7 @@ from random import seed
 from random import randint
 from numpy import random
 from functools import reduce
+from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import simpy.rt
@@ -64,9 +65,10 @@ pd_pods = []  # list of names of all the pods
 pd_status = []  # boolean list for the bind/unbind status of pod
 
 
-def cluster_generator(env, num_mNode, num_node, jobs):
+def cluster_generator(env, num_mNode, num_node, jobs, jobType, printing):
 
-    console.log("---> Start Cluster :hourglass: [{} seconds]\n".format(
+    if printing:
+        console.log("---> Start Cluster :hourglass: [{} seconds]\n".format(
                 env.now), style="bold green")
     logging.info(' Start Cluster at {} seconds\n'.format(env.now))
 
@@ -78,9 +80,10 @@ def cluster_generator(env, num_mNode, num_node, jobs):
     Tell the simulation enviroment to run the
     create_nodes activity generator.
     '''
-    nodes = env.process(create_nodes_generator(env, cluster, num_node))
+    nodes = env.process(create_nodes_generator(env, cluster, num_node, printing))
     yield nodes
-    console.log("---> Nodes created successfully :hourglass: [{} seconds]\n".format(
+    if printing:
+        console.log("---> Nodes created successfully :hourglass: [{} seconds]\n".format(
                 env.now), style="blue bold")
     logging.info(' Nodes created successfully at {} seconds\n'.format(env.now))
 
@@ -88,7 +91,10 @@ def cluster_generator(env, num_mNode, num_node, jobs):
     Tell the simulation enviroment to run the create_pods activity generator.
     The method create pods and add them in a FIFO queue.
     '''
-    pods = env.process(create_pods_csv_generator(env, jobs))
+    if jobType == 'yaml':
+        pods = env.process(create_pods_yaml_generator(env, printing))
+    elif jobType == 'csv':
+        pods = env.process(create_pods_csv_generator(env, jobs, printing))
     yield pods
 
     # Keep doing this indefinitely (whilst the program's running)
@@ -107,13 +113,13 @@ def cluster_generator(env, num_mNode, num_node, jobs):
             Tell the simulation enviroment to run the
             kubescheduler activity generator
             '''
-            scheduler = env.process(kubescheduler_generator(env, cluster, pod))
+            scheduler = env.process(kubescheduler_generator(env, cluster, pod, printing))
 
             '''
             Tell the simulation enviroment to run the
             drop pod activity generator
             '''
-            removePod = env.process(drop_pod_generator(env, pod, cluster))
+            removePod = env.process(drop_pod_generator(env, pod, cluster, printing))
 
         yield scheduler | removePod  # Either one process finished
 
@@ -124,40 +130,54 @@ def cluster_generator(env, num_mNode, num_node, jobs):
     cluster.master_node.release(request)  # release resources
 
 
-def create_nodes_generator(env, cluster, num_node):
+def create_nodes_generator(env, cluster, num_node, printing):
     '''
     This function creates all working nodes described in the input file.
     '''
-    console.log("===> Creating Nodes ", style="bold blue")
+    if printing:
+        console.log("===> Creating Nodes ", style="bold blue")
 
     for filename in glob.glob('src/*.yaml'):  # load YAML file from src
         with open(os.path.join(os.getcwd(), filename), 'r') as stream:
             try:
                 input = yaml.safe_load(stream)  # loads data from input file
-                # loop will run till it reach the final node in the list
-                # for i in track(range(len(input['cluster']['node']))):
-                for i in range(num_node):
-                    name = input['cluster']['node'][i]['name']
-                    memory = input['cluster']['node'][i]['memory']
-                    cpu = input['cluster']['node'][i]['cpu']
-                    label = input['cluster']['node'][i]['label']
+                if input['cluster']['wNode_creationType'] == 'auto':
+                    memory = input['cluster']['autoNode']['memory']
+                    cpu = input['cluster']['autoNode']['cpu']
+                    label = input['cluster']['autoNode']['label']
                     creationTime = input['cluster']['wNode_creationTime']
+                    name = 'n'
+                    for i in range(num_node):
+                        node = Node(name+str(i), memory, cpu, cluster, label)  # create node
+                        cluster.add_node(node)  # add node to the cluster
+                        _NODES.append(node)
 
-                    node = Node(name, memory, cpu, cluster, label)  # create node
-                    cluster.add_node(node)  # add node to the cluster
-                    _NODES.append(node)
+                        yield env.timeout(creationTime)
 
-                    yield env.timeout(creationTime)
+                elif input['cluster']['wNode_creationType'] == 'manual':
+                    for i in range(num_node):
+                        name = input['cluster']['node'][i]['name']
+                        memory = input['cluster']['node'][i]['memory']
+                        cpu = input['cluster']['node'][i]['cpu']
+                        label = input['cluster']['node'][i]['label']
+                        creationTime = input['cluster']['wNode_creationTime']
+
+                        node = Node(name, memory, cpu, cluster, label)  # create node
+                        cluster.add_node(node)  # add node to the cluster
+                        _NODES.append(node)
+
+                        yield env.timeout(creationTime)
 
             except yaml.YAMLError as exc:
                 print(exc)
 
 
-def create_pods_generator(env):
+def create_pods_yaml_generator(env, printing):
     '''
     This function creates all the pods described in the input (YAML) file.
     '''
-    console.log("===> Creating Pods ", style="bold blue")
+    if printing:
+        console.log("===> Creating Pods ", style="bold blue")
 
     pod_data = {}  # contains pod info described in the input file
 
@@ -165,7 +185,7 @@ def create_pods_generator(env):
         with open(os.path.join(os.getcwd(), filename), 'r') as stream:
             try:
                 input = yaml.safe_load(stream)
-                for i in track(range(len(input['pods']['pod']))):
+                for i in range(len(input['pods']['pod'])):
                     pod_name = input['pods']['pod'][i]['name']
                     plugin = input['pods']['pod'][i]['plugin']
                     arrivalRate = input['pods']['pod'][i]['arrivalRate']
@@ -188,7 +208,8 @@ def create_pods_generator(env):
                     yield env.timeout(pod_data[name][1])
                     logging.info(' {} entered the queue at {} seconds \n'.format(
                                  name, env.now))
-                    console.log('---> {} entered the queue at {} seconds'.format(
+                    if printing:
+                        console.log('---> {} entered the queue at {} seconds'.format(
                                 name, env.now))
                     schedulerName = pod_file['spec']['schedulerName']
                     nodeName = pod_file['spec']['nodeName']
@@ -227,7 +248,7 @@ def create_pods_generator(env):
                 print(exc)
 
 
-def create_pods_csv_generator(env, jobs):
+def create_pods_csv_generator(env, jobs, printing):
     '''
     This function creates all the jobs described in the csv file.
     '''
@@ -251,7 +272,8 @@ def create_pods_csv_generator(env, jobs):
 
         logging.info(' {} entered the queue at {} seconds \n'.format(
                         name, env.now))
-        console.log('---> {} entered the queue at {} seconds'.format(
+        if printing:
+            console.log('---> {} entered the queue at {} seconds'.format(
                     name, env.now))
 
         pod = Pod(name, mem, cpu, plug, env.now, randint(duration, 200), [])
@@ -259,14 +281,15 @@ def create_pods_csv_generator(env, jobs):
         _PODS.append(pod)
 
 
-def drop_pod_generator(env, pod, cluster):
+def drop_pod_generator(env, pod, cluster, printing):
     '''
     This function removes the pod from the node it is bind to.
     '''
     if pod.is_bind:
         yield env.timeout(pod.serviceTime)
 
-        console.log("\n===> Removing {} :hourglass: [{} seconds]".format(
+        if printing:
+            console.log("\n===> Removing {} :hourglass: [{} seconds]".format(
                     pod.name, env.now), style="bold red")
 
         pod.node.remove_pod(pod)  # remove pod from the node
@@ -279,7 +302,8 @@ def drop_pod_generator(env, pod, cluster):
         logging.info(' {} removed at {} seconds\n'.format(pod.name, env.now))
 
     else:
-        console.log("\n===> Can't Remove {} because it's not bind".format(
+        if printing:
+            console.log("\n===> Can't Remove {} because it's not bind".format(
                     pod.name), style="bold red")
         logging.info(" Can't Remove {} because it's not bind\n".format(pod.name))
 
@@ -289,33 +313,37 @@ def drop_pod_generator(env, pod, cluster):
                 pod.schedulingRetries += 1
                 logging.info(' {} again entered the queue at {} seconds [Retry # {}]\n'.format(
                                     pod.name, env.now, pod.schedulingRetries))
-                console.log('---> {} again entered the queue at {} seconds [Retry # {}]'.format(
+                if printing:
+                    console.log('---> {} again entered the queue at {} seconds [Retry # {}]'.format(
                                     pod.name, env.now, pod.schedulingRetries))
             else:
                 logging.info(' No feasible node is available for {} in this cluster\n'.format(
                             pod.name))
-                console.log('---> No feasible node is available for {} in this cluster'.format(
+                if printing:
+                    console.log('---> No feasible node is available for {} in this cluster'.format(
                             pod.name))
 
         else:
             logging.info(' No feasible node is available for {} in this cluster\n'.format(
                          pod.name))
-            console.log('---> No feasible node is available for {} in this cluster'.format(
+            if printing:
+                console.log('---> No feasible node is available for {} in this cluster'.format(
                         pod.name))
 
 
-def kubescheduler_generator(env, cluster, pod):
+def kubescheduler_generator(env, cluster, pod, printing):
     '''
     This function is used to schedule the pod on a feasible node.
     '''
-    console.log("\n---> Run Kubescheduler for {}\n".format(
+    if printing:
+        console.log("\n---> Run Kubescheduler for {}\n".format(
                 pod.name), style="bold green")
     logging.info(" Run Kubescheduler for {}\n".format(
                 pod.name))
     kubescheduler = Kubescheduler()  # create kubescheduler
 
     # Start kubescheduler
-    kubescheduler.scheduling_cycle(cluster, pod, env.now, console)
+    kubescheduler.scheduling_cycle(cluster, pod, env.now, console, printing)
 
     index.append(env.now)
     pd_pods.append(pod.name)
@@ -348,6 +376,25 @@ def main():
     We defined the generator functions above. Here's where we will get
     everything running. First we set up a new SimPy simulation enviroment
     '''
+
+    for filename in glob.glob('src/*.yaml'):
+        with open(os.path.join(os.getcwd(), filename), 'r') as stream:
+            try:
+                input = yaml.safe_load(stream)
+                num_mNode = input['cluster']['num_mNode']
+                wNodeList = input['cluster']['wNodeList']
+                simType = input['metadata']['simType']
+                jobType = input['metadata']['jobType']
+                jobList = input['metadata']['csv']['jobList']
+                num_yaml_pods = len(input['pods']['pod'])
+                if input['metadata']['printing'] == 'on':
+                    printing = True
+                elif input['metadata']['printing'] == 'off':
+                    printing = False
+
+            except yaml.YAMLError as exc:
+                print(exc)
+
     num_of_nodes = []
     num_of_jobs = []
     completion_time = []
@@ -355,17 +402,18 @@ def main():
     avg_retries = []
     perc_failed_pods = []
 
-    for jobs in [50, 100, len(pd.read_csv('src/jobs.csv'))]:
-        for num_node in [2, 4, 8, 16, 32]:
-            for filename in glob.glob('src/*.yaml'):
-                with open(os.path.join(os.getcwd(), filename), 'r') as stream:
-                    try:
-                        input = yaml.safe_load(stream)
-                        num_mNode = input['cluster']['num_mNode']
-                        simType = input['metadata']['simType']
+    MARKDOWN = """# Start Simulation"""
+    console.log(Markdown(MARKDOWN), style="bold magenta")
 
-                    except yaml.YAMLError as exc:
-                        print(exc)
+    total_nodes = list(map(int, wNodeList.split(",")))
+
+    if jobType == 'yaml':
+        jobList = [num_yaml_pods]
+    elif jobType == 'csv':
+        jobList = list(map(int, jobList.split(",")))
+
+    for jobs in tqdm(jobList, desc="Working..."):
+        for num_node in total_nodes:
 
             # create a simulation environment
             if simType == 'rt':
@@ -378,20 +426,18 @@ def main():
             file.truncate(0)
             file.close()
 
-            MARKDOWN = """# Start Simulation"""
-            console.log(Markdown(MARKDOWN), style="bold magenta")
-
-            env.process(cluster_generator(env, num_mNode, num_node, jobs))
+            env.process(cluster_generator(env, num_mNode, num_node, jobs, jobType, printing))
             # Set the simulation to run till the cluster process finish
             env.run()
 
             total_completion_time = env.now
             logging.info(' Stop Cluster at {} seconds\n'.format(total_completion_time))
-            console.log("\n---> Stop Cluster :hourglass: [{} seconds]\n".format(
+            if printing:
+                console.log("\n---> Stop Cluster :hourglass: [{} seconds]\n".format(
                         total_completion_time), style="bold magenta")
 
-            MARKDOWN = """# End Result"""
-            console.log(Markdown(MARKDOWN), style="bold magenta")
+            MARKDOWN = """# Experiment Done [Jobs: {}, Nodes: {}]""".format(jobs, num_node)
+            console.log(Markdown(MARKDOWN), style="bold green")
 
             # for node in _NODES:
             #     node_table.add_row(node.name, str(node.id), str(node.num_of_pods),
@@ -430,19 +476,23 @@ def main():
             df['Retries'] = retries
             df['Wait in Queue'] = wait_in_queue
 
-            console.log(df)  # displaying data
+            if printing:
+                console.log(df)  # displaying data
 
-            console.log("\n---> Total Completion Time: {} seconds".format(
+            if printing:
+                console.log("\n---> Total Completion Time: {} seconds".format(
                         total_completion_time), style="bold green")
             logging.info(' Total Completion Time: {} seconds\n'.format(
                         total_completion_time))
 
-            console.log("---> Average waiting time in the queue: {} seconds".format(
+            if printing:
+                console.log("---> Average waiting time in the queue: {} seconds".format(
                         Average(wait_in_queue)), style="bold green")
             logging.info(' Average waiting time in the queue: {} seconds\n'.format(
                         Average(wait_in_queue)))
 
-            console.log("---> Average retries: {}".format(
+            if printing:
+                console.log("---> Average retries: {}".format(
                         Average(retries)), style="bold green")
             logging.info(' Average retries: {}\n'.format(
                         Average(retries)))
@@ -452,7 +502,8 @@ def main():
                 if pod.binded is False:
                     failed_pods += 1
 
-            console.log("---> Percentage of failed pods: {} %\n".format(
+            if printing:
+                console.log("---> Percentage of failed pods: {} %\n".format(
                         failed_pods/len(_PODS)), style="bold red")
             logging.info(' Percentage of failed pods: {} %\n'.format(
                         failed_pods/len(_PODS)))
@@ -483,6 +534,8 @@ def main():
     information.to_csv('results.csv', index=False)
     console.save_html("demo.html")  # save the results in a demo HTML file
 
+    MARKDOWN = """# End Simulation"""
+    console.log(Markdown(MARKDOWN), style="bold magenta")
 
 if __name__ == "__main__":
     main()
