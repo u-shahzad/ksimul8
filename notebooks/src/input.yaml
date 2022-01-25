@@ -1,12 +1,23 @@
-apiVersion: v1
 metadata:
-  name: InputFile
+  name: 'input.yaml'
   # 'rt' for Realtime simulator environment.
   # 'n' for normal simulator environment.
   simType: 'n'
+  # yaml or csv
+  jobType: 'csv'
+  printing: 'off'
+  csv:
+    jobList: '50,100,201'
 cluster:
   num_mNode: 1
   wNode_creationTime: 5
+  wNodeList: '2,4,8,16,32,64'
+  # auto or manual
+  wNode_creationType: 'auto'
+  autoNode:
+    memory: 64
+    cpu: 128
+    label: null
   node:
   - name: 'n1'
     memory: 64

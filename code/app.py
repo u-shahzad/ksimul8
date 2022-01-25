@@ -15,6 +15,7 @@ from random import randint
 from numpy import random
 from functools import reduce
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import simpy.rt

@@ -1,11 +1,10 @@
-apiVersion: v2
 metadata:
   name: 'input.yaml'
   # 'rt' for Realtime simulator environment.
   # 'n' for normal simulator environment.
   simType: 'n'
   # yaml or csv
-  jobType: 'yaml'
+  jobType: 'csv'
   printing: 'off'
   csv:
     jobList: '50,100,201'
