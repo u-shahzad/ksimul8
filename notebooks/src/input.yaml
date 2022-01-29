@@ -1,18 +1,25 @@
 metadata:
   name: 'input.yaml'
-  # 'rt' for Realtime simulator environment.
-  # 'n' for normal simulator environment.
+  # 'rt' for Realtime simulation environment.
+  # 'n' for normal simulation environment.
   simType: 'n'
-  # yaml or csv
+  # 'yaml' or 'csv'
   jobType: 'csv'
+  # 'on' or 'off'
   printing: 'off'
   csv:
-    jobList: '50,100,201'
+    jobList: '10,50,100,200'
+    seed: 1
+    ref_node_mem: 64
+    ref_node_cpu: 128
+    plugin: '0110000000010000001000'
 cluster:
   num_mNode: 1
+  cluster_yield_time: 5
+  kubescheduler_yield_time: 5
   wNode_creationTime: 5
   wNodeList: '2,4,8,16,32,64'
-  # auto or manual
+  # 'auto' or 'manual'
   wNode_creationType: 'auto'
   autoNode:
     memory: 64
@@ -24,128 +31,16 @@ cluster:
     cpu: 128
     label: null
   - name: 'n2'
-    memory: 64
-    cpu: 128
+    memory: 128
+    cpu: 256
     label: null
   - name: 'n3'
-    memory: 64
-    cpu: 128
+    memory: 256
+    cpu: 512
     label: 'ssd'
   - name: 'n4'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n5'
-    memory: 64
-    cpu: 128
-    label: 'ssd'
-  - name: 'n6'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n7'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n8'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n9'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n10'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n11'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n12'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n13'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n14'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n15'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n16'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n17'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n18'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n19'
-    memory: 64
-    cpu: 128
-    label: 'ssd'
-  - name: 'n20'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n21'
-    memory: 64
-    cpu: 128
-    label: 'ssd'
-  - name: 'n22'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n23'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n24'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n25'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n26'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n27'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n28'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n29'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n30'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n31'
-    memory: 64
-    cpu: 128
-    label: null
-  - name: 'n32'
-    memory: 64
-    cpu: 128
+    memory: 512
+    cpu: 1024
     label: null
 pods:
   pod:

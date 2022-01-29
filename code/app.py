@@ -66,7 +66,9 @@ pd_pods = []  # list of names of all the pods
 pd_status = []  # boolean list for the bind/unbind status of pod
 
 
-def cluster_generator(env, num_mNode, num_node, jobs, jobType, printing):
+def cluster_generator(env, num_mNode, num_node, jobs, jobType, printing,
+                      seed, ref_node_mem, ref_node_cpu, cluster_yield_time,
+                      sched_yield_time, plugin_csv):
 
     if printing:
         console.log("---> Start Cluster :hourglass: [{} seconds]\n".format(
@@ -95,14 +97,17 @@ def cluster_generator(env, num_mNode, num_node, jobs, jobType, printing):
     if jobType == 'yaml':
         pods = env.process(create_pods_yaml_generator(env, printing))
     elif jobType == 'csv':
-        pods = env.process(create_pods_csv_generator(env, jobs, printing))
+        pods = env.process(create_pods_csv_generator(env, jobs, printing,
+                                                     seed, ref_node_mem,
+                                                     ref_node_cpu, plugin_csv,
+                                                     num_node))
     yield pods
 
     # Keep doing this indefinitely (whilst the program's running)
     while True:
 
         # wait before getting next pod
-        yield env.timeout(5)
+        yield env.timeout(cluster_yield_time)
 
         # if the queue is not empty
         if (_POD_QUEUE.empty() is False):
@@ -114,7 +119,8 @@ def cluster_generator(env, num_mNode, num_node, jobs, jobType, printing):
             Tell the simulation enviroment to run the
             kubescheduler activity generator
             '''
-            scheduler = env.process(kubescheduler_generator(env, cluster, pod, printing))
+            scheduler = env.process(kubescheduler_generator(env, cluster, pod,
+                                                            printing, sched_yield_time))
 
             '''
             Tell the simulation enviroment to run the
@@ -153,7 +159,7 @@ def create_nodes_generator(env, cluster, num_node, printing):
                         cluster.add_node(node)  # add node to the cluster
                         _NODES.append(node)
 
-                        yield env.timeout(creationTime)
+                    yield env.timeout(creationTime)
 
                 elif input['cluster']['wNode_creationType'] == 'manual':
                     for i in range(num_node):
@@ -249,25 +255,52 @@ def create_pods_yaml_generator(env, printing):
                 print(exc)
 
 
-def create_pods_csv_generator(env, jobs, printing):
+def create_pods_csv_generator(env, jobs, printing, s, ref_node_mem,
+                              ref_node_cpu, plugin_csv, num_node):
     '''
     This function creates all the jobs described in the csv file.
     '''
     # seed random number generator
-    seed(1)
+    seed(s)
     
     # extract data form the file
     df = pd.read_csv('src/jobs.csv')
+
+    port_list = []
+    nodeName_list = []
+    for value in df["cpu"]:
+        if value > 0 and value <= 0.10:
+            port_list.append(randint(49152, 65535))  # free available ports
+            n = randint(0, num_node-1)
+            nodeName_list.append('n'+str(n))
+        elif value > 0.10 and value <= 0.20:
+            port_list.append(randint(49152, 65535))
+            n = randint(0, num_node-1)
+            nodeName_list.append('n'+str(n))
+        elif value > 0.20 and value <= 0.40:
+            port_list.append(randint(49152, 65535))
+            n = randint(0, num_node-1)
+            nodeName_list.append('n'+str(n))
+        else:
+            port_list.append(randint(49152, 65535))
+            n = randint(0, num_node-1)
+            nodeName_list.append('n'+str(n))
+    df['port'] = port_list
+    df['nodeName'] = nodeName_list
+
     for i in range(jobs):
-        yield env.timeout(random.exponential(scale=1.0, size=None))
+        # yield env.timeout(random.exponential(scale=1.0, size=None))
+        yield env.timeout(1)
 
         name = df['id'].values[i]
         duration = df['duration'].values[i]
-        mem = df['mem'].values[i] * 64
-        cpu = df['cpu'].values[i] * 128
+        mem = df['mem'].values[i] * ref_node_mem
+        cpu = df['cpu'].values[i] * ref_node_cpu
+        nodeName = df['nodeName'].values[i]
+        port = df['port'].values[i]
 
         plug = Plugin()
-        plugin_list = list(map(lambda x: x == "1", '0010000000001000001000'))
+        plugin_list = list(map(lambda x: x == "1", plugin_csv))
         plug.predicate_list = plugin_list[:9]
         plug.priorites_list = plugin_list[9:]
 
@@ -277,7 +310,8 @@ def create_pods_csv_generator(env, jobs, printing):
             console.log('---> {} entered the queue at {} seconds'.format(
                     name, env.now))
 
-        pod = Pod(name, mem, cpu, plug, env.now, randint(duration, 200), [])
+        # pod = Pod(name, mem, cpu, plug, env.now, randint(duration-1, duration), [], nodeName, '', port)
+        pod = Pod(name, mem, cpu, plug, env.now, duration, [], nodeName, '', port)
         _POD_QUEUE.put(pod)
         _PODS.append(pod)
 
@@ -332,7 +366,7 @@ def drop_pod_generator(env, pod, cluster, printing):
                         pod.name))
 
 
-def kubescheduler_generator(env, cluster, pod, printing):
+def kubescheduler_generator(env, cluster, pod, printing, sched_yield_time):
     '''
     This function is used to schedule the pod on a feasible node.
     '''
@@ -363,8 +397,7 @@ def kubescheduler_generator(env, cluster, pod, printing):
 
     # console.log(table)  # print table
 
-    scheduling_time = 5  # time used by the scheduler to run its cycle
-    yield env.timeout(scheduling_time)
+    yield env.timeout(sched_yield_time)
 
 
 # Utility function, returns average of a numerical list
@@ -383,10 +416,16 @@ def main():
             try:
                 input = yaml.safe_load(stream)
                 num_mNode = input['cluster']['num_mNode']
+                cluster_yield_time = input['cluster']['cluster_yield_time']
+                sched_yield_time = input['cluster']['kubescheduler_yield_time']
                 wNodeList = input['cluster']['wNodeList']
                 simType = input['metadata']['simType']
                 jobType = input['metadata']['jobType']
                 jobList = input['metadata']['csv']['jobList']
+                seed = input['metadata']['csv']['seed']
+                ref_node_mem = input['metadata']['csv']['ref_node_mem']
+                ref_node_cpu = input['metadata']['csv']['ref_node_cpu']
+                plugin_csv = input['metadata']['csv']['plugin']
                 num_yaml_pods = len(input['pods']['pod'])
                 if input['metadata']['printing'] == 'on':
                     printing = True
@@ -413,6 +452,11 @@ def main():
     elif jobType == 'csv':
         jobList = list(map(int, jobList.split(",")))
 
+    # erase logs of the previous run
+    file = open("test.log", "r+")
+    file.truncate(0)
+    file.close()
+
     for jobs in tqdm(jobList, desc="Working..."):
         for num_node in total_nodes:
 
@@ -422,12 +466,11 @@ def main():
             elif simType == 'n':
                 env = simpy.Environment()
 
-            # erase logs of the previous run
-            file = open("test.log", "r+")
-            file.truncate(0)
-            file.close()
-
-            env.process(cluster_generator(env, num_mNode, num_node, jobs, jobType, printing))
+            env.process(cluster_generator(env, num_mNode, num_node, jobs,
+                                          jobType, printing, seed,
+                                          ref_node_mem, ref_node_cpu,
+                                          cluster_yield_time,
+                                          sched_yield_time, plugin_csv))
             # Set the simulation to run till the cluster process finish
             env.run()
 
@@ -535,7 +578,7 @@ def main():
     information.to_csv('results.csv', index=False)
     console.save_html("demo.html")  # save the results in a demo HTML file
 
-    MARKDOWN = """# End Simulation"""
+    MARKDOWN = """# Simulation Ended"""
     console.log(Markdown(MARKDOWN), style="bold magenta")
 
 if __name__ == "__main__":
