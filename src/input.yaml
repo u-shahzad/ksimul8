@@ -8,17 +8,17 @@ metadata:
   # 'on' or 'off'
   printing: 'off'
   csv:
-    jobList: '200'
+    jobList: '2,10,100,200'
     seed: 1
     ref_node_mem: 64
     ref_node_cpu: 128
-    plugin: '1110000000010000001000'
+    plugin: '0010000000010000001000'
 cluster:
   num_mNode: 1
   cluster_yield_time: 5
   kubescheduler_yield_time: 5
   wNode_creationTime: 5
-  wNodeList: '2,4,8,16,32'
+  wNodeList: '2,4,8,16,32,64,128'
   # 'auto' or 'manual'
   wNode_creationType: 'auto'
   autoNode:
