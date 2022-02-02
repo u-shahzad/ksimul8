@@ -12,6 +12,7 @@ from rich.markdown import Markdown
 from rich.progress import track
 from random import seed
 from random import randint
+from numpy import random
 from functools import reduce
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -179,7 +180,7 @@ def create_nodes_generator(env, cluster, num_node, printing):
                         cluster.add_node(node)  # add node to the cluster
                         _NODES.append(node)
 
-                        yield env.timeout(creationTime)
+                    yield env.timeout(creationTime)
 
             except yaml.YAMLError as exc:
                 print(exc)
@@ -281,7 +282,7 @@ def create_pods_csv_generator(env, jobs, printing, s, ref_node_mem,
     port_list = []  # list of port requirement for the jobs
     nodeName_list = []  # list of nodeName requirement for the jobs
     for value in df["cpu"]:
-        port_list.append(randint(49152, 65535))  # free available ports
+        port_list.append(randint(1, 100))
         n = randint(0, num_node-1)
         nodeName_list.append('n'+str(n))
 
@@ -290,8 +291,7 @@ def create_pods_csv_generator(env, jobs, printing, s, ref_node_mem,
     df['nodeName'] = nodeName_list
 
     for i in range(jobs):
-        # yield env.timeout(random.exponential(scale=1.0, size=None))
-        yield env.timeout(1)
+        yield env.timeout(random.exponential(scale=1.0, size=None))
 
         name = df['id'].values[i]
         duration = df['duration'].values[i]
@@ -311,10 +311,8 @@ def create_pods_csv_generator(env, jobs, printing, s, ref_node_mem,
             console.log('---> {} entered the queue at {} seconds'.format(
                     name, env.now))
 
-        # pod = Pod(name, mem, cpu, plug, env.now,
-        #           randint(duration-1, duration), [], nodeName, '', port)
-        pod = Pod(name, mem, cpu, plug, env.now, duration, [], nodeName, '',
-                  port)
+        pod = Pod(name, mem, cpu, plug, env.now,
+                  randint(duration, duration*2), [], nodeName, '', port)
         _POD_QUEUE.put(pod)  # insert pod in the queue
         _PODS.append(pod)
 
@@ -351,20 +349,13 @@ def drop_pod_generator(env, pod, cluster, printing):
         logging.info(" Can't Remove {} because it's not bind\n".format(pod.name))
 
         if cluster.active_nodes > 0:
-            if _POD_QUEUE.empty() is False:
-                _POD_QUEUE.put(pod)
-                pod.schedulingRetries += 1
-                logging.info(' {} again entered the queue at {} seconds [Retry # {}]\n'.format(
-                                    pod.name, env.now, pod.schedulingRetries))
-                if printing:
-                    console.log('---> {} again entered the queue at {} seconds [Retry # {}]'.format(
-                                    pod.name, env.now, pod.schedulingRetries))
-            else:
-                logging.info(' No feasible node is available for {} in this cluster\n'.format(
-                            pod.name))
-                if printing:
-                    console.log('---> No feasible node is available for {} in this cluster'.format(
-                            pod.name))
+            _POD_QUEUE.put(pod)
+            pod.schedulingRetries += 1
+            logging.info(' {} again entered the queue at {} seconds [Retry # {}]\n'.format(
+                        pod.name, env.now, pod.schedulingRetries))
+            if printing:
+                console.log('---> {} again entered the queue at {} seconds [Retry # {}]'.format(
+                            pod.name, env.now, pod.schedulingRetries))
 
         else:
             logging.info(' No feasible node is available for {} in this cluster\n'.format(
