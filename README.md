@@ -1,4 +1,4 @@
-# Kubernetes Scheduler Simulation
+# Ksimul8 - Kubernetes Scheduler Simulator
 
 This is the source code of a simulation application for the kubernetes default scheduler "kubescheduler", created using python simulation package 'simpy'.
 
@@ -40,7 +40,8 @@ inside the project's root.
 
 Before running the application we need to provide the following input files:
 
-- Pod deployment file(s) (YAML) in the **pods** directory
+- Pod deployment file(s) (YAML) in the **pods** directory, or
+- A CSV file containing a list of jobs. As an example, we used the data obtained from Alibaba dataset <https://github.com/alibaba/clusterdata/blob/master/cluster-trace-microservices-v2021/README.md>
 - Input file (YAML) in the **src** directory
 
 Some of the files are already provided for demo purpose.

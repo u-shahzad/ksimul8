@@ -282,7 +282,7 @@ def create_pods_csv_generator(env, jobs, printing, s, ref_node_mem,
     port_list = []  # list of port requirement for the jobs
     nodeName_list = []  # list of nodeName requirement for the jobs
     for value in df["cpu"]:
-        port_list.append(randint(1, 100))
+        port_list.append(random.choice([21,22,23,25,53,69,80,115,118,162,993]))
         n = randint(0, num_node-1)
         nodeName_list.append('n'+str(n))
 
