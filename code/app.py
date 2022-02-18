@@ -282,6 +282,19 @@ def create_pods_csv_generator(env, jobs, printing, s, ref_node_mem,
     port_list = []  # list of port requirement for the jobs
     nodeName_list = []  # list of nodeName requirement for the jobs
     for value in df["cpu"]:
+        """
+        Port 21: File Transfer Protocol (FTP)
+        Port 22: Secure Shell (SSH)
+        Port 23: Telnet protocol
+        Port 25: Simple Mail Transfer Protocol (SMTP) 
+        Port 53: Domain Name System (DNS)
+        Port 69: Trivial File Transfer Protocol (TFTP)
+        Port 80: Hypertext Transfer Protocol (HTTP)
+        Port 115: Simple File Transfer Protocol[
+        Port 118: Structured Query Language (SQL) Services
+        Port 162: Simple Network Management Protocol Trap (SNMPTRAP)
+        Port 993: Internet Message Access Protocol over TLS/SSL (IMAPS)
+        """
         port_list.append(random.choice([21,22,23,25,53,69,80,115,118,162,993]))
         n = randint(0, num_node-1)
         nodeName_list.append('n'+str(n))
