@@ -1,11 +1,4 @@
 @startuml
-class Cluster {
- -master_node
- -node_list []
- -add_node(node)
- -get_node_list()
-}
-
 class Container {
  -name
  -image
@@ -28,6 +21,10 @@ class Pod {
  -arrivalTime
  -serviceTime
  -container_list
+ -schedulingRetries
+ -assignedNode
+ -wait_in_queue
+ -binded
  -serialize()
 }
 
@@ -35,9 +32,6 @@ class Queue {
  -put(Pod)
  -get()
 }
-note left of Queue::put
-  methods to insert and remove pods
-end note
 
 class Kubescheduler {
  -name
@@ -78,6 +72,14 @@ class Predicates {
  -checkVolumeBinding()
 }
 
+class Cluster {
+ -master_node
+ -node_list []
+ -active_nodes
+ -add_node(node)
+ -get_node_list()
+}
+
 class Node {
  -id
  -name
@@ -88,33 +90,35 @@ class Node {
  -port []
  -label
  -pod_list []
+ -num_pod_history
+ -cluster
+ -active
  -add_pod()
  -remove_pod()
  -serialize()
 }
-note left of Node::num_of_pods
-  e.g. how many pods are running already
+note right of Node::num_of_pods
+  e.g. how many pods are running in the node
 end note
 
 note right of Cluster::master_node
-  1. create pods
-  2. create nodes
-  3. push pods in queue
-  4. start scheduler
-  5. pop pod
+  1. create nodes
+  2. create pods
+  3. push pods in the queue
+  4. start kube-scheduler
+  5. pop the pod(s) from the queue
   6. apply P&P
-  7. select node
-  8. bind pod with node
-  9. pop next pod
+  7. select a feasible node
+  8. bind the pod with node
 end note
 
-Queue ^-- Pod
-Pod --^ Container
-Cluster --^ Queue
-Kubescheduler --^ Queue
-Kubescheduler --^ Priorities
-Kubescheduler --^ Predicates
+Queue -- Pod
+Pod -- Container
+Cluster -- Queue
+Kubescheduler -- Queue
+Kubescheduler ^-- Priorities
+Kubescheduler ^-- Predicates
 Cluster -- Kubescheduler
-Cluster *-- Node
-Node --^ Pod
+Cluster -- Node
+Node -- Pod
 @enduml
