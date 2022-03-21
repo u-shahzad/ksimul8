@@ -116,8 +116,8 @@ Queue -- Pod
 Pod -- Container
 Cluster -- Queue
 Kubescheduler -- Queue
-Kubescheduler ^-- Priorities
-Kubescheduler ^-- Predicates
+Kubescheduler --^ Priorities
+Kubescheduler --^ Predicates
 Cluster -- Kubescheduler
 Cluster -- Node
 Node -- Pod
