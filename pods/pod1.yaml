@@ -27,5 +27,5 @@ spec:
         cpu: "32m"
   nodeName: n4
   nodeSelector:
-    disktype: ''
+    disktype: 'ssd'
   port: 80
