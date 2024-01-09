@@ -15,7 +15,7 @@ decorator==5.1.0
 defusedxml==0.7.1
 entrypoints==0.3
 flake8==4.0.1
-fonttools==4.28.5
+fonttools==4.43.0
 idna==3.3
 importlib-resources==5.4.0
 ipykernel==6.5.0
